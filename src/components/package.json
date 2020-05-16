@@ -1,0 +1,5 @@
+{
+    "name": "@ethossoftworks/redux-router/components",
+    "main": "../redux-router.components.js",
+    "types": "../types/components/index.d.ts"
+}
