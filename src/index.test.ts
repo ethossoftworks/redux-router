@@ -1,6 +1,6 @@
 import { runTests, TestGroup } from "@ethossoftworks/knock-on-wood"
 import { createRouterMiddleware } from "./middleware"
-import { createRouteForRouterState, PageNotFound, Route, createRouteForRouteItemData, route, RouteItem } from "./route"
+import { createRouteForRouterState, PageNotFound, Route, createRouteForData, route, RouteItem } from "./route"
 import { testLocation } from "./location"
 import { createStore, combineReducers, applyMiddleware, Store } from "redux"
 import { RouterState, RouterActions } from "./reducer"
@@ -69,7 +69,7 @@ const Tests: TestGroup<void> = {
         testRouteCreation: async ({ assert }) => {
             let route: Route
 
-            route = createRouteForRouteItemData(defaultLocation, Routes, Routes.Static())
+            route = createRouteForData(defaultLocation, Routes, Routes.Static())
             assert(route.type === Routes.Static)
         },
         testRouterActions: async ({ assert }) => {},
