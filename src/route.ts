@@ -19,8 +19,8 @@ export type RouteData = {
     hash: string
 }
 
-export const Uninitialized = route("@Uninitialized")
-export const PageNotFound = route("@PageNotFound", (path: string) => ({ params: { path } }))
+export const Uninitialized = route({ path: "@Uninitialized" })
+export const PageNotFound = route({ path: "@PageNotFound", creator: (path: string) => ({ params: { path } }) })
 
 export const createRouteForRouterState = withRouterContext((context) => (state: RouterState) => ({
     ...state,
@@ -105,10 +105,13 @@ function replacePathSegments(path: string, params: Record<string, string>): stri
     return path
 }
 
-export function route<T extends (() => Partial<RouteData>) | ((...args: any) => Partial<RouteData>)>(
-    path: string,
+export function route<T extends (() => Partial<RouteData>) | ((...args: any) => Partial<RouteData>)>({
+    path,
+    creator,
+}: {
+    path: string
     creator?: T
-): T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>> {
+}): T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>> {
     const _creator = creator || (() => ({ query: {}, params: {}, hash: "" }))
 
     const routeCreator: RouteItem<Parameters<T>> = (...args: Parameters<T>) => {

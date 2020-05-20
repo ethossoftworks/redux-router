@@ -11,12 +11,20 @@ import { RouterState, RouterActions } from "./reducer"
 const ORIGIN = "https://example.com"
 
 const Routes = {
-    Static: route("/one/two/three"),
-    Param: route("/items/:id", (id: string) => ({ params: { id } })),
-    StaticMutliParamMatch: route("/items/test/notes/test2"),
-    MultiParam: route("/items/:itemId/notes/:noteId", (itemId: string, noteId: string) => ({
-        params: { itemId, noteId },
-    })),
+    Static: route({
+        path: "/one/two/three",
+    }),
+    Param: route({
+        path: "/items/:id",
+        creator: (id: string) => ({ params: { id } }),
+    }),
+    StaticMutliParamMatch: route({
+        path: "/items/test/notes/test2",
+    }),
+    MultiParam: route({
+        path: "/items/:itemId/notes/:noteId",
+        creator: (itemId: string, noteId: string) => ({ params: { itemId, noteId } }),
+    }),
 }
 
 export type TestState = {
