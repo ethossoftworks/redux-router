@@ -105,29 +105,30 @@ function replacePathSegments(path: string, params: Record<string, string>): stri
     return path
 }
 
-export function route<T extends (() => Partial<RouteData>) | ((...args: any) => Partial<RouteData>)>({
+type RouteItemCreatorReturn<T extends (...args: any) => Partial<RouteData>> = T extends () => Partial<RouteData>
+    ? RouteItem<[]>
+    : RouteItem<Parameters<T>>
+
+export function route<T extends (...args: any) => Partial<RouteData>>({
     path,
     data,
 }: {
     path: string
     data?: T
-}): T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>> {
-    const _data = data || (() => ({ query: {}, params: {}, hash: "" }))
-
-    const routeItem = (...args: Parameters<T>) => {
-        const data = _data(args)
+}): RouteItemCreatorReturn<T> {
+    const routeItem: RouteItem<Parameters<T>> = (...args: Parameters<T>) => {
+        const _data = data ? data(args) : { query: {}, params: {}, hash: "" }
         return {
             id: path,
-            params: data.params || {},
-            query: data.query || {},
-            hash: data.hash || "",
+            params: _data.params || {},
+            query: _data.query || {},
+            hash: _data.hash || "",
         }
     }
-
     routeItem.path = path
     routeItem.id = path
 
-    return routeItem as T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>>
+    return routeItem as RouteItemCreatorReturn<T>
 }
 
 export function isRouteMatch(value: RouteItem, other: RouteItem | RouteItem[]): boolean {
