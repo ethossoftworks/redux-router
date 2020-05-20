@@ -21,3 +21,19 @@ export const browserLocation: Location = Object.freeze({
     query: () => location.search,
     hash: () => location.hash,
 })
+
+export const testLocation = (url: URL): Location => {
+    let _url = url
+
+    return {
+        push: (path: string, title: string = "") => (_url = new URL(path, _url.origin)),
+        replace: (path: string, title: string = "") => (_url = new URL(path, _url.origin)),
+        back: () => {},
+        forward: () => {},
+
+        origin: () => _url.origin,
+        path: () => _url.pathname,
+        query: () => _url.search,
+        hash: () => _url.hash,
+    }
+}

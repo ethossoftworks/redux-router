@@ -1,4 +1,4 @@
-import { RouteType, Route, createRouteForRouteType, createRouteForPath, Uninitialized } from "./route"
+import { RouteItemData, Route, createRouteForData, createRouteForPath, Uninitialized } from "./route"
 import { withRouterContext } from "./context"
 
 export enum RouterActionTypes {
@@ -12,14 +12,14 @@ type ReduxActionCreator<T extends Record<string, (...args: any) => any>> = Retur
 export type RouterActions = ReduxActionCreator<typeof RouterActions>
 export const RouterActions = {
     urlChanged: (url: string) => ({ type: RouterActionTypes.URL_CHANGED, url } as const),
-    navigate: withRouterContext((context) => (route: RouteType | string, replace: boolean = false) => {
+    navigate: withRouterContext((context) => (route: RouteItemData | string, replace: boolean = false) => {
         return {
             type: RouterActionTypes.NAVIGATE,
             replace,
             route:
-                route instanceof RouteType
-                    ? createRouteForRouteType(context.location, context.routes, route)
-                    : createRouteForPath(context.location, context.routes, route),
+                typeof route === "string"
+                    ? createRouteForPath(context.location, context.routes, route)
+                    : createRouteForData(context.location, context.routes, route),
         } as const
     }),
     back: () => ({ type: RouterActionTypes.BACK } as const),
@@ -27,7 +27,7 @@ export const RouterActions = {
 }
 
 export type RouterState = Omit<Route, "type">
-const initialState: RouterState = { id: Uninitialized.id, url: "", data: new Uninitialized() }
+const initialState: RouterState = { id: Uninitialized.id, url: "", data: Uninitialized() }
 
 export const routerReducer = withRouterContext(
     (context) => (state: RouterState = initialState, action: RouterActions): RouterState => {

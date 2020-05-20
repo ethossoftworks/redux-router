@@ -49,6 +49,7 @@ const testConfig = {
         entry: `./src/index.test.ts`,
         mode: "development",
         target: "node",
+        externals: {},
         output: {
             filename: `${libraryFileName}.test.js`,
             path: path.resolve(__dirname, "build"),

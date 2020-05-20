@@ -1,10 +1,10 @@
 import { useEffect } from "react"
-import { RouteType } from "../route"
+import { RouteItemData } from "../route"
 import { useDispatch } from "react-redux"
 import { RouterActions } from "../reducer"
 
 export type RedirectProps = {
-    to: RouteType | string
+    to: RouteItemData | string
     condition?: boolean
     replace?: boolean
 }
