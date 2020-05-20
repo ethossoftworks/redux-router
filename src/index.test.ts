@@ -16,14 +16,14 @@ const Routes = {
     }),
     Param: route({
         path: "/items/:id",
-        creator: (id: string) => ({ params: { id } }),
+        data: (id: string) => ({ params: { id } }),
     }),
     StaticMutliParamMatch: route({
         path: "/items/test/notes/test2",
     }),
     MultiParam: route({
         path: "/items/:itemId/notes/:noteId",
-        creator: (itemId: string, noteId: string) => ({ params: { itemId, noteId } }),
+        data: (itemId: string, noteId: string) => ({ params: { itemId, noteId } }),
     }),
 }
 
@@ -78,16 +78,16 @@ const Tests: TestGroup<void> = {
             let route: Route
 
             route = createRouteForData(defaultLocation, Routes, Routes.Static())
-            assert(route.type === Routes.Static)
+            assert(route.item === Routes.Static)
         },
         testRouterActions: async ({ assert }) => {},
         testReducer: async ({ assert }) => {},
     },
 }
 
-function assertRoute(store: Store, type: RouteItem, message: string) {
+function assertRoute(store: Store, item: RouteItem, message: string) {
     const route = createRouteForRouterState(store.getState().router)
-    if (route.type !== type) {
+    if (route.item !== item) {
         throw message
     }
 }

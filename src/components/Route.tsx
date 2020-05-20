@@ -9,5 +9,5 @@ export type RouteProps = {
 
 export function Route({ children, matches }: RouteProps) {
     const route = useRoute()
-    return isRouteMatch(route.type, matches) ? <>{children}</> : null
+    return isRouteMatch(route.item, matches) ? <>{children}</> : null
 }

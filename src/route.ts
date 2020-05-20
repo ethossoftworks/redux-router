@@ -7,9 +7,9 @@ export type RouteItem<T extends any[] = any[]> = ((...args: T) => RouteItemData)
 export type RouteItemData = RouteData & { id: string }
 
 export type Route = {
-    id: string
+    key: string
     url: string
-    type: RouteItem
+    item: RouteItem
     data: RouteData
 }
 
@@ -20,25 +20,25 @@ export type RouteData = {
 }
 
 export const Uninitialized = route({ path: "@Uninitialized" })
-export const PageNotFound = route({ path: "@PageNotFound", creator: (path: string) => ({ params: { path } }) })
+export const PageNotFound = route({ path: "@PageNotFound", data: (path: string) => ({ params: { path } }) })
 
 export const createRouteForRouterState = withRouterContext((context) => (state: RouterState) => ({
     ...state,
-    type: state.id === PageNotFound.id ? PageNotFound : context.routes[state.id],
+    item: state.key === PageNotFound.id ? PageNotFound : context.routes[state.key],
 }))
 
-export function createRouteForData(location: Location, routes: RouteMap, route: RouteItemData): Route {
-    for (const [key, type] of Object.entries(routes)) {
-        if (!(route.id === type.id)) {
+export function createRouteForData(location: Location, routes: RouteMap, itemData: RouteItemData): Route {
+    for (const [key, item] of Object.entries(routes)) {
+        if (!(itemData.id === item.id)) {
             continue
         }
 
-        const data = { params: route.params, query: route.query, hash: route.hash }
-        const url = createPathForRoute(location, { id: key, type, data, url: "" })
+        const data = { params: itemData.params, query: itemData.query, hash: itemData.hash }
+        const url = createPathForRoute(location, { key: key, item: item, data, url: "" })
 
-        return { id: key, type, url, data }
+        return { key: key, item: item, url, data }
     }
-    return { id: PageNotFound.id, url: "", type: PageNotFound, data: PageNotFound("") }
+    return { key: PageNotFound.id, url: "", item: PageNotFound, data: PageNotFound("") }
 }
 
 export function createRouteForPath(location: Location, routes: RouteMap, path: string): Route {
@@ -46,29 +46,29 @@ export function createRouteForPath(location: Location, routes: RouteMap, path: s
     const pathSegments = url.pathname.split("/").filter((segment) => segment !== "")
     const query = buildQueryDataObject(url)
 
-    routeTypeLoop: for (const [key, type] of Object.entries(routes)) {
-        if (type.path === path) {
-            return { id: key, type, url: path, data: { params: {}, query, hash: url.hash } }
+    routeItemLoop: for (const [key, item] of Object.entries(routes)) {
+        if (item.path === path) {
+            return { key: key, item: item, url: path, data: { params: {}, query, hash: url.hash } }
         }
 
-        const typePathSegments = type.path.split("/").filter((segment) => segment !== "")
-        if (pathSegments.length !== typePathSegments.length) {
+        const itemPathSegments = item.path.split("/").filter((segment) => segment !== "")
+        if (pathSegments.length !== itemPathSegments.length) {
             continue
         }
 
         const params: Record<string, string> = {}
         for (let i = 0, l = pathSegments.length; i < l; i++) {
-            if (typePathSegments[i][0] === ":") {
-                params[typePathSegments[i].substring(1)] = decodeURIComponent(pathSegments[i])
-            } else if (typePathSegments[i] !== pathSegments[i]) {
-                continue routeTypeLoop
+            if (itemPathSegments[i][0] === ":") {
+                params[itemPathSegments[i].substring(1)] = decodeURIComponent(pathSegments[i])
+            } else if (itemPathSegments[i] !== pathSegments[i]) {
+                continue routeItemLoop
             }
         }
 
-        return { id: key, type, url: path, data: { params, query, hash: url.hash } }
+        return { key: key, item: item, url: path, data: { params, query, hash: url.hash } }
     }
 
-    return { id: PageNotFound.id, url: path, type: PageNotFound, data: PageNotFound(path) }
+    return { key: PageNotFound.id, url: path, item: PageNotFound, data: PageNotFound(path) }
 }
 
 function buildQueryDataObject(url: URL): Record<string, string> {
@@ -86,7 +86,7 @@ function buildQueryDataObject(url: URL): Record<string, string> {
 }
 
 export function createPathForRoute(location: Location, route: Route): string {
-    let path = replacePathSegments(route.type.path, route.data.params)
+    let path = replacePathSegments(route.item.path, route.data.params)
 
     const url = new URL(path, location.origin())
     for (const [key, value] of Object.entries(route.data.query)) {
@@ -107,15 +107,15 @@ function replacePathSegments(path: string, params: Record<string, string>): stri
 
 export function route<T extends (() => Partial<RouteData>) | ((...args: any) => Partial<RouteData>)>({
     path,
-    creator,
+    data,
 }: {
     path: string
-    creator?: T
+    data?: T
 }): T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>> {
-    const _creator = creator || (() => ({ query: {}, params: {}, hash: "" }))
+    const _data = data || (() => ({ query: {}, params: {}, hash: "" }))
 
-    const routeCreator: RouteItem<Parameters<T>> = (...args: Parameters<T>) => {
-        const data = _creator(args)
+    const routeItem = (...args: Parameters<T>) => {
+        const data = _data(args)
         return {
             id: path,
             params: data.params || {},
@@ -124,10 +124,10 @@ export function route<T extends (() => Partial<RouteData>) | ((...args: any) => 
         }
     }
 
-    routeCreator.path = path
-    routeCreator.id = path
+    routeItem.path = path
+    routeItem.id = path
 
-    return routeCreator as T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>>
+    return routeItem as T extends () => Partial<RouteData> ? RouteItem<[]> : RouteItem<Parameters<T>>
 }
 
 export function isRouteMatch(value: RouteItem, other: RouteItem | RouteItem[]): boolean {

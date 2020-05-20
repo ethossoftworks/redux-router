@@ -51,7 +51,7 @@ export const createRouterMiddleware = withRouterContext(
 
 function navigate(location: Location, route: Route, replace: boolean = false) {
     const path =
-        route.type === PageNotFound && route.data.params.path !== undefined
+        route.item === PageNotFound && route.data.params.path !== undefined
             ? route.data.params.path
             : createPathForRoute(location, route)
 

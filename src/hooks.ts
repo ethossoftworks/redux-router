@@ -9,7 +9,7 @@ export const useRoute = withRouterContext((context) => (): Route => {
 })
 
 export function useRouteMatch(matches: RouteItem | RouteItem[]): boolean {
-    return isRouteMatch(useRoute().type, matches)
+    return isRouteMatch(useRoute().item, matches)
 }
 
 export function useRouteParams(): Record<string, string> {
