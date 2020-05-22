@@ -25,6 +25,10 @@ const Routes = {
         path: "/items/:itemId/notes/:noteId",
         data: (itemId: string, noteId: string) => ({ params: { itemId, noteId } }),
     }),
+    Query: route({
+        path: "/query",
+        data: (test: string, test2: string) => ({ query: { test, test2 } }),
+    }),
 }
 
 export type TestState = {
@@ -58,6 +62,8 @@ const Tests: TestGroup<void> = {
 
             store = configureStore("/items/")
             assertRoute(store, PageNotFound, 'Trailing "/" failed')
+            route = createRouteForRouterState(store.getState().router)
+            assert(route.key === "@PageNotFound", "PageNotFound key not properly set")
 
             store = configureStore("/items/24/notes/45")
             assertRoute(store, Routes.MultiParam, "Multi param match failed")
@@ -73,12 +79,30 @@ const Tests: TestGroup<void> = {
             assertRoute(store, Routes.Static, "Route parsing failed with query and hash")
             assert(route.data.query.test === "45" && route.data.query.test2 === "46", "Query parsing failed")
             assert(route.data.hash === "#testHash", "Hash parsing failed")
+
+            store = configureStore("/one/two/three?test=It%27s+a+test%25")
+            route = createRouteForRouterState(store.getState().router)
+            assert(route.data.query.test === "It's a test%", "Did not decode url parameters")
         },
         testRouteCreation: async ({ assert }) => {
             let route: Route
 
             route = createRouteForData(defaultLocation, Routes, Routes.Static())
-            assert(route.item === Routes.Static)
+            assert(route.item === Routes.Static, "Static RouteItem doesn't match")
+            assert(route.item !== Routes.MultiParam, "Ids are not unique")
+            assert(route.key === "Static", "Static route has incorrect key")
+            assert(route.url === "/one/two/three", "Static Route url doesn't match")
+
+            route = createRouteForData(defaultLocation, Routes, Routes.MultiParam("item1", "note2"))
+            assert(route.item === Routes.MultiParam, "MultiParam RouteItem doesn't match")
+            assert(route.key === "MultiParam", "MultiParam route has incorrect key")
+            assert(route.url === "/items/item1/notes/note2", "MultiParam Route url doesn't match")
+
+            route = createRouteForData(defaultLocation, Routes, Routes.Query("It's a test%", "yep"))
+            assert(route.url === "/query?test=It%27s+a+test%25&test2=yep", "Did not properly encode query items")
+
+            route = createRouteForData(defaultLocation, Routes, Routes.Query("It's a test%", ""))
+            // TODO: Allow for setting of query parameter without value
         },
         testRouterActions: async ({ assert }) => {},
         testReducer: async ({ assert }) => {},

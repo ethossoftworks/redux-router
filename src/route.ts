@@ -3,8 +3,8 @@ import { withRouterContext } from "./context"
 import { RouterState } from "./reducer"
 
 export type RouteMap = Record<string, RouteItem>
-export type RouteItem<T extends any[] = any[]> = ((...args: T) => RouteItemData) & { path: string; id: string }
-export type RouteItemData = RouteData & { id: string }
+export type RouteItem<T extends any[] = any[]> = ((...args: T) => RouteItemData) & { path: string; id: Symbol }
+export type RouteItemData = RouteData & { id: Symbol }
 
 export type Route = {
     key: string
@@ -24,7 +24,7 @@ export const PageNotFound = route({ path: "@PageNotFound", data: (path: string) 
 
 export const createRouteForRouterState = withRouterContext((context) => (state: RouterState) => ({
     ...state,
-    item: state.key === PageNotFound.id ? PageNotFound : context.routes[state.key],
+    item: state.key === PageNotFound.path ? PageNotFound : context.routes[state.key],
 }))
 
 export function createRouteForData(location: Location, routes: RouteMap, itemData: RouteItemData): Route {
@@ -38,7 +38,7 @@ export function createRouteForData(location: Location, routes: RouteMap, itemDat
 
         return { key: key, item: item, url, data }
     }
-    return { key: PageNotFound.id, url: "", item: PageNotFound, data: PageNotFound("") }
+    return { key: PageNotFound.path, url: "", item: PageNotFound, data: PageNotFound("") }
 }
 
 export function createRouteForPath(location: Location, routes: RouteMap, path: string): Route {
@@ -68,7 +68,7 @@ export function createRouteForPath(location: Location, routes: RouteMap, path: s
         return { key: key, item: item, url: path, data: { params, query, hash: url.hash } }
     }
 
-    return { key: PageNotFound.id, url: path, item: PageNotFound, data: PageNotFound(path) }
+    return { key: PageNotFound.path, url: path, item: PageNotFound, data: PageNotFound(path) }
 }
 
 function buildQueryDataObject(url: URL): Record<string, string> {
@@ -116,19 +116,20 @@ export function route<T extends (...args: any) => Partial<RouteData>>({
     path: string
     data?: T
 }): RouteItemCreatorReturn<T> {
+    const id = Symbol()
     const routeItem: RouteItem<Parameters<T>> = (...args: Parameters<T>) => {
-        const _data = data ? data(args) : { query: {}, params: {}, hash: "" }
+        const _data = data ? data(...(args as [])) : { query: {}, params: {}, hash: "" }
         return {
-            id: path,
+            id: id,
             params: _data.params || {},
             query: _data.query || {},
             hash: _data.hash || "",
         }
     }
     routeItem.path = path
-    routeItem.id = path
+    routeItem.id = id
 
-    return routeItem as RouteItemCreatorReturn<T>
+    return Object.freeze(routeItem) as RouteItemCreatorReturn<T>
 }
 
 export function isRouteMatch(value: RouteItem, other: RouteItem | RouteItem[]): boolean {
