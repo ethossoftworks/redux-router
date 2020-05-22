@@ -1,13 +1,13 @@
 import React from "react"
-import { Route, RouteTypeConstructor, isRouteMatch } from "../route"
+import { Route, RouteItem, isRouteMatch } from "../route"
 import { useRoute } from "../hooks"
 
 export type RouteProps = {
     children?: React.ReactNode
-    matches: RouteTypeConstructor | RouteTypeConstructor[]
+    matches: RouteItem | RouteItem[]
 }
 
 export function Route({ children, matches }: RouteProps) {
     const route = useRoute()
-    return isRouteMatch(route.type, matches) ? <>{children}</> : null
+    return isRouteMatch(route.item, matches) ? <>{children}</> : null
 }

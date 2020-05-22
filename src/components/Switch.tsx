@@ -10,7 +10,7 @@ export type SwitchProps = {
 export function Switch({ children }: SwitchProps): JSX.Element | null {
     const route = useRoute()
 
-    if (route.type === Uninitialized) {
+    if (route.item === Uninitialized) {
         return null
     }
 
@@ -21,7 +21,7 @@ export function Switch({ children }: SwitchProps): JSX.Element | null {
             return
         } else if (child.type !== Route) {
             return
-        } else if (!isRouteMatch(route.type, (child.props as RouteProps).matches)) {
+        } else if (!isRouteMatch(route.item, (child.props as RouteProps).matches)) {
             return
         }
         match = child

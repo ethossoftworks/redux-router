@@ -1,6 +1,5 @@
-import { Middleware, MiddlewareAPI, Dispatch } from "redux"
-import { Reducer } from "react"
-import { RouterActions, RouterActionTypes, routerReducer } from "./reducer"
+import { Middleware, MiddlewareAPI, Dispatch, Reducer } from "redux"
+import { RouterActions, RouterActionTypes, routerReducer, RouterState } from "./reducer"
 import { RouteMap, Route, createPathForRoute, PageNotFound } from "./route"
 import { withRouterContext } from "./context"
 import { Location, browserLocation } from "./location"
@@ -14,7 +13,7 @@ export const createRouterMiddleware = withRouterContext(
         location: Location = browserLocation
     ): {
         middleware: Middleware
-        reducer: Reducer<any, RouterActions>
+        reducer: Reducer<RouterState, RouterActions>
         init: () => void
     } => {
         context.routes = routes
@@ -52,7 +51,7 @@ export const createRouterMiddleware = withRouterContext(
 
 function navigate(location: Location, route: Route, replace: boolean = false) {
     const path =
-        route.type === PageNotFound && route.data.params.path !== undefined
+        route.item === PageNotFound && route.data.params.path !== undefined
             ? route.data.params.path
             : createPathForRoute(location, route)
 
