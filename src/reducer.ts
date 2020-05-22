@@ -27,7 +27,7 @@ export const RouterActions = {
 }
 
 export type RouterState = Omit<Route, "item">
-const initialState: RouterState = { key: Uninitialized.path, url: "", data: Uninitialized() }
+const initialState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized() }
 
 export const routerReducer = withRouterContext(
     (context) => (state: RouterState = initialState, action: RouterActions): RouterState => {
