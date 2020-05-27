@@ -1,10 +1,10 @@
 import { RouteMap } from "./route"
-import { browserLocation, Location } from "./location"
+import { browserLocation, RouterLocation } from "./location"
 
 type ReduxRouterContext = {
     reducerKey: string
     routes: RouteMap
-    location: Location
+    location: RouterLocation
 }
 
 export const withRouterContext = (() => {

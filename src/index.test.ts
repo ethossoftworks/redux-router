@@ -1,7 +1,7 @@
 import { runTests, TestGroup } from "@ethossoftworks/knock-on-wood"
 import { createRouterMiddleware } from "./middleware"
 import { createRouteForRouterState, PageNotFound, Route, createRouteForData, route, RouteItem } from "./route"
-import { testLocation } from "./location"
+import { testLocation, RouterLocation } from "./location"
 import { createStore, combineReducers, applyMiddleware, Store } from "redux"
 import { RouterState, RouterActions } from "./reducer"
 ;(global as any).window = {
@@ -29,14 +29,18 @@ const Routes = {
         path: "/query",
         data: (test: string, test2: string) => ({ query: { test, test2 } }),
     }),
+    Hash: route({
+        path: "/hash",
+        data: (test: string) => ({ hash: test }),
+    }),
 }
 
 export type TestState = {
     router: RouterState
 }
 
-function configureStore(startPath: string) {
-    const router = createRouterMiddleware<TestState>(Routes, "router", testLocation(new URL(startPath, ORIGIN)))
+function configureStore(startPath: string, location: RouterLocation = testLocation(new URL(startPath, ORIGIN))) {
+    const router = createRouterMiddleware<TestState>(Routes, "router", location)
     const store = createStore(combineReducers({ router: router.reducer }), applyMiddleware(router.middleware))
     router.init()
     return store
@@ -97,15 +101,51 @@ const Tests: TestGroup<void> = {
             assert(route.item === Routes.MultiParam, "MultiParam RouteItem doesn't match")
             assert(route.key === "MultiParam", "MultiParam route has incorrect key")
             assert(route.url === "/items/item1/notes/note2", "MultiParam Route url doesn't match")
+            assert(route.data.params.itemId === "item1", "Did not create route param object correctly")
+            assert(route.data.params.noteId === "note2", "Did not create route param object correctly")
 
             route = createRouteForData(defaultLocation, Routes, Routes.Query("It's a test%", "yep"))
             assert(route.url === "/query?test=It%27s+a+test%25&test2=yep", "Did not properly encode query items")
+            assert(route.data.query.test === "It's a test%", "Did not create route query object correctly")
+            assert(route.data.query.test2 === "yep", "Did not create route query object correctly")
 
-            route = createRouteForData(defaultLocation, Routes, Routes.Query("It's a test%", ""))
-            // TODO: Allow for setting of query parameter without value
+            route = createRouteForData(defaultLocation, Routes, Routes.Hash("this is another test"))
+            assert(route.url === "/hash#this%20is%20another%20test")
+            assert(route.data.hash === "this is another test")
         },
-        testRouterActions: async ({ assert }) => {},
+        testIncorrectReducerKey: async ({ fail }) => {
+            try {
+                const router = createRouterMiddleware(Routes, "blah", testLocation(new URL("/", ORIGIN)))
+                createStore(combineReducers({ router: router.reducer }), applyMiddleware(router.middleware))
+                router.init()
+                fail("Reducer key check didn't fail")
+            } catch (e) {
+                if (e.indexOf("Redux Router") === -1) {
+                    fail("Reducer key check didn't throw correct error")
+                }
+            }
+        },
+        testRouterActions: async ({ assert }) => {
+            let store: Store
+            let location: RouterLocation
+
+            location = testLocation(new URL("/", ORIGIN))
+            store = configureStore("/", location)
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("one", "two")))
+            assert(location.path() === "/items/one/notes/two")
+            store.dispatch(RouterActions.back())
+            assert(location.path() === "/")
+            store.dispatch(RouterActions.forward())
+            assert(location.path() === "/items/one/notes/two")
+            store.dispatch(RouterActions.navigate(Routes.Static(), true))
+            store.dispatch(RouterActions.back())
+            assert(location.path() === "/")
+        },
         testReducer: async ({ assert }) => {},
+        testRouteComponent: async ({ assert }) => {},
+        testRedirectComponent: async ({ assert }) => {},
+        testSwitchComponent: async ({ assert }) => {},
+        testLinkComponent: async ({ assert }) => {},
     },
 }
 

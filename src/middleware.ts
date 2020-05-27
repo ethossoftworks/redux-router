@@ -2,7 +2,7 @@ import { Middleware, MiddlewareAPI, Dispatch, Reducer } from "redux"
 import { RouterActions, RouterActionTypes, routerReducer, RouterState } from "./reducer"
 import { RouteMap, Route, createPathForRoute, PageNotFound } from "./route"
 import { withRouterContext } from "./context"
-import { Location, browserLocation } from "./location"
+import { RouterLocation, browserLocation } from "./location"
 
 type ReduxActionCreator<T extends Record<string, (...args: any) => any>> = ReturnType<T[keyof T]>
 
@@ -10,7 +10,7 @@ export const createRouterMiddleware = withRouterContext(
     (context) => <S>(
         routes: RouteMap,
         reducerKey: keyof S,
-        location: Location = browserLocation
+        location: RouterLocation = browserLocation
     ): {
         middleware: Middleware
         reducer: Reducer<RouterState, RouterActions>
@@ -21,6 +21,10 @@ export const createRouterMiddleware = withRouterContext(
         context.location = location
 
         const middleware = (store: MiddlewareAPI) => {
+            if (store.getState()[reducerKey] === undefined) {
+                throw "Redux Router initialized with incorrect reducer key. RouterState cannot be found in state."
+            }
+
             window.addEventListener("popstate", (ev) => {
                 store.dispatch(RouterActions.urlChanged(`${location.path()}${location.query()}${location.hash()}`))
             })
@@ -49,7 +53,7 @@ export const createRouterMiddleware = withRouterContext(
     }
 )
 
-function navigate(location: Location, route: Route, replace: boolean = false) {
+function navigate(location: RouterLocation, route: Route, replace: boolean = false) {
     const path =
         route.item === PageNotFound && route.data.params.path !== undefined
             ? route.data.params.path

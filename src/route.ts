@@ -1,4 +1,4 @@
-import { Location } from "./location"
+import { RouterLocation } from "./location"
 import { withRouterContext } from "./context"
 import { RouterState } from "./reducer"
 
@@ -27,7 +27,7 @@ export const createRouteForRouterState = withRouterContext((context) => (state: 
     item: state.key === PageNotFound.key ? PageNotFound : context.routes[state.key],
 }))
 
-export function createRouteForData(location: Location, routes: RouteMap, itemData: RouteItemData): Route {
+export function createRouteForData(location: RouterLocation, routes: RouteMap, itemData: RouteItemData): Route {
     for (const [key, item] of Object.entries(routes)) {
         if (!(itemData.id === item.id)) {
             continue
@@ -41,7 +41,7 @@ export function createRouteForData(location: Location, routes: RouteMap, itemDat
     return { key: PageNotFound.key, url: "", item: PageNotFound, data: PageNotFound() }
 }
 
-export function createRouteForPath(location: Location, routes: RouteMap, path: string): Route {
+export function createRouteForPath(location: RouterLocation, routes: RouteMap, path: string): Route {
     const url = new URL(path, location.origin())
     const pathSegments = url.pathname.split("/").filter((segment) => segment !== "")
     const query = buildQueryDataObject(url)
@@ -85,7 +85,7 @@ function buildQueryDataObject(url: URL): Record<string, string> {
     return query
 }
 
-export function createPathForRoute(location: Location, route: Route): string {
+export function createPathForRoute(location: RouterLocation, route: Route): string {
     let path = replacePathSegments(route.item.path, route.data.params)
 
     const url = new URL(path, location.origin())

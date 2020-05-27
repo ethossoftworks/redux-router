@@ -9,7 +9,9 @@ export enum RouterActionTypes {
 }
 
 type ReduxActionCreator<T extends Record<string, (...args: any) => any>> = ReturnType<T[keyof T]>
+
 export type RouterActions = ReduxActionCreator<typeof RouterActions>
+
 export const RouterActions = {
     urlChanged: (url: string) => ({ type: RouterActionTypes.URL_CHANGED, url } as const),
     navigate: withRouterContext((context) => (route: RouteItemData | string, replace: boolean = false) => {
@@ -27,6 +29,7 @@ export const RouterActions = {
 }
 
 export type RouterState = Omit<Route, "item">
+
 const initialState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized() }
 
 export const routerReducer = withRouterContext(
