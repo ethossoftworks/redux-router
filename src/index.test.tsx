@@ -9,16 +9,18 @@ import {
     RouteItem,
     Uninitialized,
 } from "./route"
-import { testLocation, RouterLocation } from "./location"
+import { testLocation, RouterLocation, browserLocation } from "./location"
 import { createStore, combineReducers, applyMiddleware, Store } from "redux"
 import { RouterState, RouterActions } from "./reducer"
-;(global as any).window = {
-    addEventListener: () => {},
-}
+import ReactDOM from "react-dom"
+import React from "react"
+import { Link } from "./components"
+import { Provider } from "react-redux"
 
 const ORIGIN = "https://example.com"
 
 const Routes = {
+    Home: route({ path: "/" }),
     Static: route({
         path: "/one/two/three",
     }),
@@ -41,6 +43,14 @@ const Routes = {
         path: "/hash",
         data: (test: string) => ({ hash: test }),
     }),
+    ParamAndQueryAndHash: route({
+        path: "/items/:itemId/notes/:noteId",
+        data: (itemId: string, noteId: string, query1: string, query2: string, hash: string) => ({
+            params: { itemId, noteId },
+            query: { query1, query2 },
+            hash,
+        }),
+    }),
 }
 
 export type TestState = {
@@ -55,6 +65,10 @@ function configureStore(startPath: string, location: RouterLocation = testLocati
 }
 
 const defaultLocation = testLocation(new URL("/", ORIGIN))
+
+const TestApp = (props: { store: Store; children: React.ReactNode }) => (
+    <Provider store={props.store}>{props.children}</Provider>
+)
 
 const Tests: TestGroup<void> = {
     context: undefined,
@@ -186,10 +200,31 @@ const Tests: TestGroup<void> = {
             assert(newState.url === "/query?test=blah1&test2=blah2", "Incorrect path in reducer state")
             assert(newState.data.query["test"] === "blah1" && newState.data.query["test2"] === "blah2")
         },
+        testLinkComponent: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <Link id="link" to={Routes.ParamAndQueryAndHash("item1", "note2", "%test", "test2", "hashTest")}>
+                        Test Link
+                    </Link>
+                </TestApp>,
+                document.getElementById("root")
+            )
+            ;(document.querySelector("#link") as HTMLElement).click()
+
+            assert(
+                (document.querySelector("#link") as HTMLAnchorElement).href ===
+                    location.origin + "/items/item1/notes/note2?query1=%25test&query2=test2#hashTest",
+                "Incorrect href for Link component"
+            )
+            assert(location.pathname === "/items/item1/notes/note2", "Incorrect pathname after clicking Link component")
+            assertRoute(store, Routes.ParamAndQueryAndHash, "State did not update for Link component")
+        },
         testRouteComponent: async ({ assert }) => {},
         testRedirectComponent: async ({ assert }) => {},
         testSwitchComponent: async ({ assert }) => {},
-        testLinkComponent: async ({ assert }) => {},
         testHooks: async ({ assert }) => {},
     },
 }

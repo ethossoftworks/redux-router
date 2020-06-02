@@ -27,10 +27,12 @@
         "@types/lodash.isequal": "^4.5.5",
         "@types/react": "^16.9.34",
         "@types/react-redux": "^7.1.8",
+        "@types/react-dom": "^16.9.8",
         "clean-webpack-plugin": "^3.0.0",
         "prettier": "^2.0.5",
         "react": "^16.13.1",
         "react-redux": "^7.2.0",
+        "react-dom": "16.13.1",
         "redux": "^4.0.5",
         "ts-loader": "^7.0.4",
         "typescript": "^3.9.3",
@@ -47,8 +49,7 @@
         "build": "yarn format && npx webpack --env prod && node scripts/post-build.js",
         "build-pack": "yarn build && cd ./build && npm pack",
         "build-publish": "yarn build && cd ./build && npm publish --access public",
-        "test": "yarn format && npx webpack --env test && node build/redux-router.test.js",
-        "test-inspect": "yarn format && npx webpack --env test && node --inspect-brk build/redux-router.test.js"
+        "build-test": "yarn format && npx webpack --env test"
     },
     "prettier": {
         "endOfLine": "lf",

@@ -1,5 +1,6 @@
 const path = require("path")
 const { CleanWebpackPlugin } = require("clean-webpack-plugin")
+const fs = require("fs")
 
 const libraryFileName = "redux-router"
 const libraryName = "ReduxRouter"
@@ -46,7 +47,7 @@ const testConfig = {
     ...prodConfig,
     ...{
         devtool: "source-map",
-        entry: `./src/index.test.ts`,
+        entry: `./src/index.test.tsx`,
         mode: "development",
         target: "node",
         externals: {},
@@ -55,6 +56,16 @@ const testConfig = {
             path: path.resolve(__dirname, "build"),
         },
         optimization: {},
+        plugins: [
+            new CleanWebpackPlugin(),
+            {
+                apply: (compiler) => {
+                    compiler.hooks.done.tap("ReduxRouterPostScript", (compilation) => {
+                        fs.copyFileSync("./test/test.html", "./build/index.html")
+                    })
+                },
+            },
+        ],
     },
 }
 
