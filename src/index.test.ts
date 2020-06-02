@@ -1,6 +1,14 @@
 import { runTests, TestGroup } from "@ethossoftworks/knock-on-wood"
 import { createRouterMiddleware } from "./middleware"
-import { createRouteForRouterState, PageNotFound, Route, createRouteForData, route, RouteItem } from "./route"
+import {
+    createRouteForRouterState,
+    PageNotFound,
+    Route,
+    createRouteForData,
+    route,
+    RouteItem,
+    Uninitialized,
+} from "./route"
 import { testLocation, RouterLocation } from "./location"
 import { createStore, combineReducers, applyMiddleware, Store } from "redux"
 import { RouterState, RouterActions } from "./reducer"
@@ -141,11 +149,48 @@ const Tests: TestGroup<void> = {
             store.dispatch(RouterActions.back())
             assert(location.path() === "/")
         },
-        testReducer: async ({ assert }) => {},
+        testReducer: async ({ assert }) => {
+            let newState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized() }
+            const router = createRouterMiddleware<TestState>(Routes, "router", testLocation(new URL("/", ORIGIN)))
+            createStore(combineReducers({ router: router.reducer }), applyMiddleware(router.middleware))
+            router.init()
+
+            newState = router.reducer(
+                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                RouterActions.navigate(Routes.Static())
+            )
+            assert(newState.key === "Static", "Incorrect key property in reducer state")
+            assert(newState.url === "/one/two/three", "Incorrect path in reducer state")
+
+            newState = router.reducer(
+                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                RouterActions.navigate(Routes.MultiParam("itemOne", "noteTwo"))
+            )
+            assert(newState.key === "MultiParam", "Incorrect key property in reducer state")
+            assert(newState.url === "/items/itemOne/notes/noteTwo", "Incorrect path in reducer state")
+            assert(newState.data.params["itemId"] === "itemOne" && newState.data.params["noteId"] === "noteTwo")
+
+            newState = router.reducer(
+                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                RouterActions.navigate(Routes.Query("blah1", "blah2"))
+            )
+            assert(newState.key === "Query", "Incorrect key property in reducer state")
+            assert(newState.url === "/query?test=blah1&test2=blah2", "Incorrect path in reducer state")
+            assert(newState.data.query["test"] === "blah1" && newState.data.query["test2"] === "blah2")
+
+            newState = router.reducer(
+                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                RouterActions.urlChanged("/query?test=blah1&test2=blah2")
+            )
+            assert(newState.key === "Query", "Incorrect key property in reducer state")
+            assert(newState.url === "/query?test=blah1&test2=blah2", "Incorrect path in reducer state")
+            assert(newState.data.query["test"] === "blah1" && newState.data.query["test2"] === "blah2")
+        },
         testRouteComponent: async ({ assert }) => {},
         testRedirectComponent: async ({ assert }) => {},
         testSwitchComponent: async ({ assert }) => {},
         testLinkComponent: async ({ assert }) => {},
+        testHooks: async ({ assert }) => {},
     },
 }
 
