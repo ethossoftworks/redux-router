@@ -10,12 +10,12 @@ import {
     Uninitialized,
 } from "./route"
 import { testLocation, RouterLocation, browserLocation } from "./location"
-import { createStore, combineReducers, applyMiddleware, Store } from "redux"
+import { createStore, combineReducers, applyMiddleware, Store, Action, AnyAction } from "redux"
 import { RouterState, RouterActions } from "./reducer"
 import ReactDOM from "react-dom"
 import React from "react"
-import { Link } from "./components"
-import { Provider } from "react-redux"
+import { Link, Route as RouteComponent, Redirect } from "./components"
+import { Provider, useSelector } from "react-redux"
 
 const ORIGIN = "https://example.com"
 
@@ -53,13 +53,29 @@ const Routes = {
     }),
 }
 
-export type TestState = {
+type TestState = {
     router: RouterState
+    tests: TestSubState
+}
+
+type TestSubState = {
+    shouldRedirect: boolean
+}
+
+function testReducer(state: TestSubState = { shouldRedirect: false }, action: Action): TestSubState {
+    switch (action.type) {
+        case "ShouldRedirectChanged":
+            return { shouldRedirect: true }
+    }
+    return state
 }
 
 function configureStore(startPath: string, location: RouterLocation = testLocation(new URL(startPath, ORIGIN))) {
     const router = createRouterMiddleware<TestState>(Routes, "router", location)
-    const store = createStore(combineReducers({ router: router.reducer }), applyMiddleware(router.middleware))
+    const store = createStore<TestState, AnyAction, {}, {}>(
+        combineReducers({ router: router.reducer, tests: testReducer }),
+        applyMiddleware(router.middleware)
+    )
     router.init()
     return store
 }
@@ -222,14 +238,105 @@ const Tests: TestGroup<void> = {
             assert(location.pathname === "/items/item1/notes/note2", "Incorrect pathname after clicking Link component")
             assertRoute(store, Routes.ParamAndQueryAndHash, "State did not update for Link component")
         },
-        testRouteComponent: async ({ assert }) => {},
-        testRedirectComponent: async ({ assert }) => {},
+        testRouteComponent: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <RouteComponent matches={Routes.Home}>
+                        <div id="home">Home</div>
+                    </RouteComponent>
+                    <RouteComponent matches={Routes.MultiParam}>
+                        <div id="multi-param">Multi Param</div>
+                    </RouteComponent>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.querySelector("#home") !== null)
+            assert(document.querySelector("#multi-param") === null)
+
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("one", "two")))
+
+            assert(document.querySelector("#home") === null)
+            assert(document.querySelector("#multi-param") !== null)
+        },
+        testRedirectComponent: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <RouteComponent matches={Routes.Static}>
+                        <Redirect to={Routes.Query("foo", "bar")} />
+                    </RouteComponent>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            store.dispatch(RouterActions.navigate(Routes.Static()))
+            await sleep(100)
+            assertRoute(store, Routes.Query)
+            assert(location.pathname === "/query")
+
+            store.dispatch(RouterActions.back())
+            await sleep(100)
+            assert(location.pathname === "/")
+            assertRoute(store, Routes.Home)
+        },
+        testRedirectComponentWithReplace: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <Redirect to={Routes.Static()} replace={false} />
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            await sleep(100)
+            assertRoute(store, Routes.Static)
+            assert(location.pathname === "/one/two/three")
+
+            store.dispatch(RouterActions.back())
+            await sleep(100)
+            assert(location.pathname === "/")
+            assertRoute(store, Routes.Home)
+        },
+        testRedirectComponentWithCondition: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            const RedirectTest = () => {
+                const shouldRedirect = useSelector((state: TestState) => state.tests.shouldRedirect)
+                return <Redirect to={Routes.MultiParam("one", "two")} condition={shouldRedirect} />
+            }
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <RedirectTest />
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assertRoute(store, Routes.Home)
+            store.dispatch({ type: "ShouldRedirectChanged" })
+            await sleep(100)
+            assertRoute(store, Routes.MultiParam)
+            assert(location.pathname === "/items/one/notes/two")
+        },
         testSwitchComponent: async ({ assert }) => {},
         testHooks: async ({ assert }) => {},
     },
 }
 
-function assertRoute(store: Store, item: RouteItem, message: string) {
+async function sleep(timeout: number) {
+    return new Promise((res) => setTimeout(res, timeout))
+}
+
+function assertRoute(store: Store, item: RouteItem, message: string = "") {
     const route = createRouteForRouterState(store.getState().router)
     if (route.item !== item) {
         throw message
