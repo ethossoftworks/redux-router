@@ -24,7 +24,7 @@ export const PageNotFound = Object.freeze(Object.assign(_route({ path: "" }), { 
 
 export const createRouteForRouterState = withRouterContext((context) => (state: RouterState) => ({
     ...state,
-    item: state.key === PageNotFound.key ? PageNotFound : context.routes[state.key],
+    item: state.key === PageNotFound.key ? PageNotFound : context.routes[state.key] || PageNotFound,
 }))
 
 export function createRouteForData(location: RouterLocation, routes: RouteMap, itemData: RouteItemData): Route {
