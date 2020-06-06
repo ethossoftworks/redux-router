@@ -14,8 +14,9 @@ import { createStore, combineReducers, applyMiddleware, Store, Action, AnyAction
 import { RouterState, RouterActions } from "./reducer"
 import ReactDOM from "react-dom"
 import React from "react"
-import { Link, Route as RouteComponent, Redirect } from "./components"
+import { Link, Route as RouteComponent, Redirect, Switch } from "./components"
 import { Provider, useSelector } from "react-redux"
+import { useRouteMatch } from "./hooks"
 
 const ORIGIN = "https://example.com"
 
@@ -262,6 +263,30 @@ const Tests: TestGroup<void> = {
             assert(document.querySelector("#home") === null)
             assert(document.querySelector("#multi-param") !== null)
         },
+        testMultipleRoutesRouteComponent: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <RouteComponent matches={[Routes.Home, Routes.MultiParam]}>
+                        <div id="home-or-multiparam">Home or multi param</div>
+                    </RouteComponent>
+                    <RouteComponent matches={Routes.MultiParam}>
+                        <div id="multi-param">Multi Param</div>
+                    </RouteComponent>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.querySelector("#home-or-multiparam") !== null)
+            assert(document.querySelector("#multi-param") === null)
+
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("one", "two")))
+
+            assert(document.querySelector("#home-or-multiparam") !== null)
+            assert(document.querySelector("#multi-param") !== null)
+        },
         testRedirectComponent: async ({ assert }) => {
             const store = configureStore("/", browserLocation)
             store.dispatch(RouterActions.navigate(Routes.Home()))
@@ -327,8 +352,53 @@ const Tests: TestGroup<void> = {
             assertRoute(store, Routes.MultiParam)
             assert(location.pathname === "/items/one/notes/two")
         },
-        testSwitchComponent: async ({ assert }) => {},
-        testHooks: async ({ assert }) => {},
+        testSwitchComponent: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <Switch>
+                        <RouteComponent matches={Routes.Home}>
+                            <div id="home">Home 1</div>
+                        </RouteComponent>
+                        <RouteComponent matches={Routes.Home}>
+                            <div id="home2">Home 2</div>
+                        </RouteComponent>
+                    </Switch>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.querySelector("#home") !== null)
+            assert(document.querySelector("#home2") === null)
+        },
+        testHooks: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            const Test = () => {
+                const route = useRouteMatch(Routes.MultiParam)
+                return <div id={route ? "multi-param" : "no-match"} data-route-key={route?.key}></div>
+            }
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <Test />
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.querySelector("#no-match") !== null)
+            assert(document.querySelector("#multi-param") === null)
+            assert((document.querySelector("#no-match") as HTMLElement).dataset["routeKey"] === undefined)
+
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("one", "two")))
+
+            assert(document.querySelector("#no-match") === null)
+            assert(document.querySelector("#multi-param") !== null)
+            assert((document.querySelector("#multi-param") as HTMLElement).dataset["routeKey"] === "MultiParam")
+        },
     },
 }
 

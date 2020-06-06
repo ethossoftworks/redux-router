@@ -8,8 +8,9 @@ export const useRoute = withRouterContext((context) => (): Route => {
     return createRouteForRouterState(state)
 })
 
-export function useRouteMatch(matches: RouteItem | RouteItem[]): boolean {
-    return isRouteMatch(useRoute().item, matches)
+export function useRouteMatch(matches: RouteItem | RouteItem[]): Route | null {
+    const route = useRoute()
+    return isRouteMatch(route.item, matches) ? route : null
 }
 
 export function useRouteParams(): Record<string, string> {
