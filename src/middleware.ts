@@ -1,6 +1,6 @@
 import { Middleware, MiddlewareAPI, Dispatch, Reducer } from "redux"
 import { RouterActions, RouterActionTypes, routerReducer, RouterState } from "./reducer"
-import { RouteMap, Route, createPathForRoute, PageNotFound } from "./route"
+import { RouteMap, Route, createPathForRoute, PageNotFound, createRouteForRouterState } from "./route"
 import { withRouterContext } from "./context"
 import { RouterLocation, browserLocation } from "./location"
 
@@ -33,7 +33,12 @@ export const createRouterMiddleware = withRouterContext(
                 store.dispatch(RouterActions.urlChanged(`${location.path()}${location.query()}${location.hash()}`))
 
             return (next: Dispatch) => (action: ReduxActionCreator<typeof RouterActions>) => {
+                const result = next(action)
                 switch (action.type) {
+                    case RouterActionTypes.URL_CHANGED:
+                        const route = createRouteForRouterState(store.getState()[reducerKey])
+                        setTitleForRoute(route)
+                        break
                     case RouterActionTypes.NAVIGATE:
                         navigate(location, action.route, action.replace)
                         break
@@ -44,7 +49,7 @@ export const createRouterMiddleware = withRouterContext(
                         location.forward()
                         break
                 }
-                return next(action)
+                return result
             }
         }
 
@@ -63,9 +68,19 @@ function navigate(location: RouterLocation, route: Route, replace: boolean = fal
         return
     }
 
+    setTitleForRoute(route)
+
     if (replace) {
         location.replace(path, "")
     } else {
         location.push(path, "")
     }
+}
+
+function setTitleForRoute(route: Route) {
+    if (!route.item.title) {
+        return
+    }
+
+    document.title = route.item.title(route.data)
 }

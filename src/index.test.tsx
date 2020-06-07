@@ -21,7 +21,7 @@ import { useRouteMatch } from "./hooks"
 const ORIGIN = "https://example.com"
 
 const Routes = {
-    Home: route({ path: "/" }),
+    Home: route({ path: "/", title: (data) => `Home - ${data.hash}` }),
     Static: route({
         path: "/one/two/three",
     }),
@@ -398,6 +398,18 @@ const Tests: TestGroup<void> = {
             assert(document.querySelector("#no-match") === null)
             assert(document.querySelector("#multi-param") !== null)
             assert((document.querySelector("#multi-param") as HTMLElement).dataset["routeKey"] === "MultiParam")
+        },
+        _testTitle: async ({ assert }) => {
+            const store = configureStore("/#foo-bar", browserLocation)
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <div></div>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.title === "Home - foo-bar")
         },
     },
 }
