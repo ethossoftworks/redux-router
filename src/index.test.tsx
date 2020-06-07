@@ -121,7 +121,7 @@ const Tests: TestGroup<void> = {
             route = createRouteForRouterState(store.getState().router)
             assertRoute(store, Routes.Static, "Route parsing failed with query and hash")
             assert(route.data.query.test === "45" && route.data.query.test2 === "46", "Query parsing failed")
-            assert(route.data.hash === "#testHash", "Hash parsing failed")
+            assert(route.data.hash === "testHash", "Hash parsing failed")
 
             store = configureStore("/one/two/three?test=It%27s+a+test%25")
             route = createRouteForRouterState(store.getState().router)

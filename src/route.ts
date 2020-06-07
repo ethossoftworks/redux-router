@@ -48,7 +48,7 @@ export function createRouteForPath(location: RouterLocation, routes: RouteMap, p
 
     routeItemLoop: for (const [key, item] of Object.entries(routes)) {
         if (item.path === path) {
-            return { key: key, item: item, url: path, data: { params: {}, query, hash: url.hash } }
+            return { key: key, item: item, url: path, data: { params: {}, query, hash: url.hash.substr(1) } }
         }
 
         const itemPathSegments = item.path.split("/").filter((segment) => segment !== "")
@@ -65,7 +65,7 @@ export function createRouteForPath(location: RouterLocation, routes: RouteMap, p
             }
         }
 
-        return { key: key, item: item, url: path, data: { params, query, hash: url.hash } }
+        return { key: key, item: item, url: path, data: { params, query, hash: url.hash.substr(1) } }
     }
 
     return { key: PageNotFound.key, url: path, item: PageNotFound, data: PageNotFound() }
