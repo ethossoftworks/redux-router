@@ -30,16 +30,21 @@ export const RouterActions = {
 
 export type RouterState = Omit<Route, "item">
 
-const initialState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized() }
+const initialState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized(), title: null }
 
 export const routerReducer = withRouterContext(
     (context) => (state: RouterState = initialState, action: RouterActions): RouterState => {
         switch (action.type) {
             case RouterActionTypes.URL_CHANGED:
                 const route = createRouteForPath(context.location, context.routes, action.url)
-                return { key: route.key, url: route.url, data: route.data }
+                return { key: route.key, url: route.url, data: route.data, title: route.title }
             case RouterActionTypes.NAVIGATE:
-                return { key: action.route.key, url: action.route.url, data: action.route.data }
+                return {
+                    key: action.route.key,
+                    url: action.route.url,
+                    data: action.route.data,
+                    title: action.route.title,
+                }
             default:
                 return state
         }

@@ -78,9 +78,9 @@ function navigate(location: RouterLocation, route: Route, replace: boolean = fal
 }
 
 function setTitleForRoute(route: Route) {
-    if (!route.item.title) {
+    if (route.title === null) {
         return
     }
 
-    document.title = route.item.title(route.data)
+    document.title = route.title
 }
