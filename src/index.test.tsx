@@ -14,7 +14,7 @@ import { createStore, combineReducers, applyMiddleware, Store, Action, AnyAction
 import { RouterState, RouterActions } from "./reducer"
 import ReactDOM from "react-dom"
 import React from "react"
-import { Link, Route as RouteComponent, Redirect, Switch } from "./components"
+import { Link, Route as RouteComponent, Redirect, RouteSwitch } from "./components"
 import { Provider, useSelector } from "react-redux"
 import { useRouteMatch } from "./hooks"
 
@@ -359,14 +359,14 @@ const Tests: TestGroup<void> = {
 
             ReactDOM.render(
                 <TestApp store={store}>
-                    <Switch>
+                    <RouteSwitch>
                         <RouteComponent matches={Routes.Home}>
                             <div id="home">Home 1</div>
                         </RouteComponent>
                         <RouteComponent matches={Routes.Home}>
                             <div id="home2">Home 2</div>
                         </RouteComponent>
-                    </Switch>
+                    </RouteSwitch>
                 </TestApp>,
                 document.getElementById("root")
             )

@@ -7,7 +7,7 @@ export type SwitchProps = {
     children?: React.ReactNode
 }
 
-export function Switch({ children }: SwitchProps): JSX.Element | null {
+export function RouteSwitch({ children }: SwitchProps): JSX.Element | null {
     const route = useRoute()
 
     if (route.item === Uninitialized) {
