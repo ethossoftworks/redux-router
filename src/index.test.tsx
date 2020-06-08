@@ -21,7 +21,7 @@ import { useRouteMatch } from "./hooks"
 const ORIGIN = "https://example.com"
 
 const Routes = {
-    Home: route({ path: "/" }),
+    Home: route({ path: "/", title: () => "Home" }),
     Static: route({
         path: "/one/two/three",
     }),
@@ -35,6 +35,7 @@ const Routes = {
     MultiParam: route({
         path: "/items/:itemId/notes/:noteId",
         data: (itemId: string, noteId: string) => ({ params: { itemId, noteId } }),
+        title: (data) => `MultiParam - ${data.params.itemId}`,
     }),
     Query: route({
         path: "/query",
@@ -181,20 +182,20 @@ const Tests: TestGroup<void> = {
             assert(location.path() === "/")
         },
         testReducer: async ({ assert }) => {
-            let newState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized() }
+            let newState: RouterState = { key: Uninitialized.key, url: "", data: Uninitialized(), title: null }
             const router = createRouterMiddleware<TestState>(Routes, "router", testLocation(new URL("/", ORIGIN)))
             createStore(combineReducers({ router: router.reducer }), applyMiddleware(router.middleware))
             router.init()
 
             newState = router.reducer(
-                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                { key: Uninitialized.key, url: "", data: Uninitialized(), title: null },
                 RouterActions.navigate(Routes.Static())
             )
             assert(newState.key === "Static", "Incorrect key property in reducer state")
             assert(newState.url === "/one/two/three", "Incorrect path in reducer state")
 
             newState = router.reducer(
-                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                { key: Uninitialized.key, url: "", data: Uninitialized(), title: null },
                 RouterActions.navigate(Routes.MultiParam("itemOne", "noteTwo"))
             )
             assert(newState.key === "MultiParam", "Incorrect key property in reducer state")
@@ -202,7 +203,7 @@ const Tests: TestGroup<void> = {
             assert(newState.data.params["itemId"] === "itemOne" && newState.data.params["noteId"] === "noteTwo")
 
             newState = router.reducer(
-                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                { key: Uninitialized.key, url: "", data: Uninitialized(), title: null },
                 RouterActions.navigate(Routes.Query("blah1", "blah2"))
             )
             assert(newState.key === "Query", "Incorrect key property in reducer state")
@@ -210,7 +211,7 @@ const Tests: TestGroup<void> = {
             assert(newState.data.query["test"] === "blah1" && newState.data.query["test2"] === "blah2")
 
             newState = router.reducer(
-                { key: Uninitialized.key, url: "", data: Uninitialized() },
+                { key: Uninitialized.key, url: "", data: Uninitialized(), title: null },
                 RouterActions.urlChanged("/query?test=blah1&test2=blah2")
             )
             assert(newState.key === "Query", "Incorrect key property in reducer state")
@@ -398,6 +399,29 @@ const Tests: TestGroup<void> = {
             assert(document.querySelector("#no-match") === null)
             assert(document.querySelector("#multi-param") !== null)
             assert((document.querySelector("#multi-param") as HTMLElement).dataset["routeKey"] === "MultiParam")
+        },
+        testTitle: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("one", "two")))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <div></div>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.title === "MultiParam - one")
+
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("two", "two")))
+            assert(document.title === "MultiParam - two")
+
+            store.dispatch(RouterActions.navigate(Routes.Static()))
+            assert(document.title === "MultiParam - two")
+
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+            assert(document.title === "Home")
+            assert(store.getState().router.title === "Home")
         },
     },
 }

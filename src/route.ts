@@ -3,7 +3,11 @@ import { withRouterContext } from "./context"
 import { RouterState } from "./reducer"
 
 export type RouteMap = Record<string, RouteItem>
-export type RouteItem<T extends any[] = any[]> = ((...args: T) => RouteItemData) & { path: string; id: Symbol }
+export type RouteItem<T extends any[] = any[]> = ((...args: T) => RouteItemData) & {
+    path: string
+    id: Symbol
+    title?: (data: RouteData) => string
+}
 export type RouteItemData = RouteData & { id: Symbol }
 
 export type Route = {
@@ -11,6 +15,7 @@ export type Route = {
     url: string
     item: RouteItem
     data: RouteData
+    title: string | null
 }
 
 export type RouteData = {
@@ -34,11 +39,12 @@ export function createRouteForData(location: RouterLocation, routes: RouteMap, i
         }
 
         const data = { params: itemData.params, query: itemData.query, hash: itemData.hash }
-        const url = createPathForRoute(location, { key: key, item: item, data, url: "" })
+        const title = item.title !== undefined ? item.title(data) : null
+        const url = createPathForRoute(location, { key: key, item: item, data, url: "", title })
 
-        return { key: key, item: item, url, data }
+        return { key: key, item: item, url, data, title }
     }
-    return { key: PageNotFound.key, url: "", item: PageNotFound, data: PageNotFound() }
+    return { key: PageNotFound.key, url: "", item: PageNotFound, data: PageNotFound(), title: null }
 }
 
 export function createRouteForPath(location: RouterLocation, routes: RouteMap, path: string): Route {
@@ -48,7 +54,10 @@ export function createRouteForPath(location: RouterLocation, routes: RouteMap, p
 
     routeItemLoop: for (const [key, item] of Object.entries(routes)) {
         if (item.path === path) {
-            return { key: key, item: item, url: path, data: { params: {}, query, hash: url.hash.substr(1) } }
+            const data = { params: {}, query, hash: url.hash.substr(1) }
+            const title = item.title !== undefined ? item.title(data) : null
+
+            return { key: key, item: item, url: path, data, title }
         }
 
         const itemPathSegments = item.path.split("/").filter((segment) => segment !== "")
@@ -65,10 +74,13 @@ export function createRouteForPath(location: RouterLocation, routes: RouteMap, p
             }
         }
 
-        return { key: key, item: item, url: path, data: { params, query, hash: url.hash.substr(1) } }
+        const data = { params, query, hash: url.hash.substr(1) }
+        const title = item.title !== undefined ? item.title(data) : null
+
+        return { key: key, item: item, url: path, data, title }
     }
 
-    return { key: PageNotFound.key, url: path, item: PageNotFound, data: PageNotFound() }
+    return { key: PageNotFound.key, url: path, item: PageNotFound, data: PageNotFound(), title: null }
 }
 
 function buildQueryDataObject(url: URL): Record<string, string> {
@@ -112,23 +124,27 @@ type RouteItemCreatorReturn<T extends (...args: any) => Partial<RouteData>> = T 
 export function route<T extends (...args: any) => Partial<RouteData>>({
     path,
     data,
+    title,
 }: {
     path: string
     data?: T
+    title?: (data: RouteData) => string
 }): RouteItemCreatorReturn<T> {
-    return Object.freeze(_route({ path, data }))
+    return Object.freeze(_route({ path, data, title }))
 }
 
 function _route<T extends (...args: any) => Partial<RouteData>>({
     path,
     data,
+    title,
 }: {
     path: string
     data?: T
+    title?: (data: RouteData) => string
 }): RouteItemCreatorReturn<T> {
     const id = Symbol()
     const routeItem: RouteItem<Parameters<T>> = (...args: Parameters<T>) => {
-        const _data = data ? data(...(args as [])) : { query: {}, params: {}, hash: "" }
+        const _data = data ? data(...(args as [])) : { query: {}, params: {}, hash: "", title: null }
         return {
             id: id,
             params: _data.params || {},
@@ -138,6 +154,7 @@ function _route<T extends (...args: any) => Partial<RouteData>>({
     }
     routeItem.path = path
     routeItem.id = id
+    routeItem.title = title !== undefined ? title : undefined
 
     return routeItem as RouteItemCreatorReturn<T>
 }
