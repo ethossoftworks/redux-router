@@ -21,7 +21,7 @@ import { useRouteMatch } from "./hooks"
 const ORIGIN = "https://example.com"
 
 const Routes = {
-    Home: route({ path: "/" }),
+    Home: route({ path: "/", title: () => "Home" }),
     Static: route({
         path: "/one/two/three",
     }),
@@ -403,7 +403,6 @@ const Tests: TestGroup<void> = {
         testTitle: async ({ assert }) => {
             const store = configureStore("/", browserLocation)
             store.dispatch(RouterActions.navigate(Routes.MultiParam("one", "two")))
-            console.log(store.getState())
 
             ReactDOM.render(
                 <TestApp store={store}>
@@ -413,6 +412,16 @@ const Tests: TestGroup<void> = {
             )
 
             assert(document.title === "MultiParam - one")
+
+            store.dispatch(RouterActions.navigate(Routes.MultiParam("two", "two")))
+            assert(document.title === "MultiParam - two")
+
+            store.dispatch(RouterActions.navigate(Routes.Static()))
+            assert(document.title === "MultiParam - two")
+
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+            assert(document.title === "Home")
+            assert(store.getState().router.title === "Home")
         },
     },
 }
