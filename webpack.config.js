@@ -21,8 +21,8 @@ const prodConfig = {
     },
     plugins: [new CleanWebpackPlugin()],
     entry: {
-        core: `./src/index.ts`, // Prevents code duplication of effects and prevents EffectSymbol from being re-declared
-        components: `./src/components/index.ts`,
+        core: { import: `./src/index.ts` },
+        components: { import: `./src/components/index.ts`, dependOn: "core" }, // Prevents code duplication of effects and prevents EffectSymbol from being re-declared
     },
     externals: {
         react: "react",
