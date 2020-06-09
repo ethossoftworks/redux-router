@@ -1,7 +1,17 @@
-import { RouteMap, route } from "@ethossoftworks/redux-router"
+import { route } from "@ethossoftworks/redux-router"
 
-export const Routes: RouteMap = {
+export const Routes = {
     Home: route({
-        path: "/"
-    })
+        path: "/",
+    }),
+    Articles: route({
+        path: "/articles",
+    }),
+    Article: route({
+        path: "/articles/:articleId",
+        data: (articleId: string) => ({ params: { articleId } }),
+    }),
+    Login: route({
+        path: "/login",
+    }),
 }

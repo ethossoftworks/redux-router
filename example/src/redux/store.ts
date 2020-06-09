@@ -1,7 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from "redux"
 import { composeWithDevTools } from "redux-devtools-extension"
-import { createRouterMiddleware, RouterState } from "@ethossoftworks/redux-router"
 import { Routes } from "../Routes"
+import { RouterState, createRouterMiddleware } from "@ethossoftworks/redux-router"
 
 export type AppState = {
     router: RouterState
