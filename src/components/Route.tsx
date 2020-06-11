@@ -7,7 +7,7 @@ export type RouteProps = {
     matches: RouteItem | RouteItem[]
 }
 
-export function Route({ children, matches }: RouteProps) {
+export function Route({ children, matches }: RouteProps): JSX.Element | null {
     const route = useRoute()
     return isRouteMatch(route.item, matches) ? <>{children}</> : null
 }
