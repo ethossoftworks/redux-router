@@ -17,7 +17,7 @@ export function Redirect({ to, condition, replace = true }: RedirectProps) {
             return
         }
         dispatch(RouterActions.navigate(to, replace))
-    })
+    }, [condition])
 
     return null
 }
