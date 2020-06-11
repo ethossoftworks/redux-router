@@ -1,11 +1,13 @@
 import { RouterLocation } from "./location"
 import { withRouterContext } from "./context"
 import { RouterState } from "./reducer"
+import { atomicInt } from "./util"
 
 export type RouteMap = Record<string, RouteItem>
 export type RouteItem<T extends any[] = any[]> = ((...args: T) => RouteItemData) & {
     path: string
     id: Symbol
+    groupId: string | number
     title?: (data: RouteData) => string
 }
 export type RouteItemData = RouteData & { id: Symbol }
@@ -125,22 +127,26 @@ export function route<T extends (...args: any) => Partial<RouteData>>({
     path,
     data,
     title,
+    groupId,
 }: {
     path: string
     data?: T
     title?: (data: RouteData) => string
+    groupId?: string | number
 }): RouteItemCreatorReturn<T> {
-    return Object.freeze(_route({ path, data, title }))
+    return Object.freeze(_route({ path, data, title, groupId }))
 }
 
 function _route<T extends (...args: any) => Partial<RouteData>>({
     path,
     data,
     title,
+    groupId,
 }: {
     path: string
     data?: T
     title?: (data: RouteData) => string
+    groupId?: string | number
 }): RouteItemCreatorReturn<T> {
     const id = Symbol()
     const routeItem: RouteItem<Parameters<T>> = (...args: Parameters<T>) => {
@@ -155,9 +161,11 @@ function _route<T extends (...args: any) => Partial<RouteData>>({
     routeItem.path = path
     routeItem.id = id
     routeItem.title = title !== undefined ? title : undefined
+    routeItem.groupId = groupId !== undefined ? groupId : `$$ReduxRouterGroupId_${atomicInt()}`
 
     return routeItem as RouteItemCreatorReturn<T>
 }
+
 export function isRouteMatch(value: RouteItem, other: RouteItem | RouteItem[]): boolean {
     if (Array.isArray(other)) {
         for (let i = 0, l = other.length; i < l; i++) {
