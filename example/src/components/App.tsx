@@ -1,10 +1,10 @@
 import React, { useMemo } from "react"
 import { RouteSwitch, Route, Redirect, RouteProps } from "@ethossoftworks/redux-router/components"
-import { Routes, AuthRoutes } from "../Routes"
+import { Routes } from "../Routes"
 import { Home } from "./Home"
 import { Articles } from "./Articles"
 import { Login } from "./Login"
-import { PageNotFound, useRoute, isRouteMatch } from "@ethossoftworks/redux-router"
+import { PageNotFound, useRoute } from "@ethossoftworks/redux-router"
 import { NotFound } from "./NotFound"
 import { isLoggedIn } from "../util"
 import { CSSTransition, TransitionGroup } from "react-transition-group"
@@ -31,12 +31,7 @@ export function App() {
                     <AuthRoute matches={[Routes.Articles, Routes.Article]}>
                         <Articles />
                     </AuthRoute>
-                    {/* <Route matches={[Routes.Articles, Routes.Article]}>
-                            <Articles />
-                        </Route> */}
-                    <Route matches={Routes.Login}>
-                        <Login />
-                    </Route>
+                    <Route matches={Routes.Login}>{isLoggedIn() ? <Redirect to={Routes.Home()} /> : <Login />}</Route>
                     <Route matches={PageNotFound}>
                         <NotFound />
                     </Route>
@@ -51,9 +46,5 @@ function AuthRoute({ children, route, ...rest }: RouteProps) {
         return null
     }
 
-    const isAuthRoute = isRouteMatch(route.item, AuthRoutes)
-
-    return (
-        <Route {...rest}>{!isLoggedIn() && isAuthRoute ? <Redirect to={Routes.Login(route.url)} /> : children}</Route>
-    )
+    return <Route {...rest}>{!isLoggedIn() ? <Redirect to={Routes.Login(route.url)} /> : children}</Route>
 }
