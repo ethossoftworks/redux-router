@@ -30,7 +30,7 @@ export function Modal({ open, children, onClose, showClose, id }: ModalProps): J
                 <CSSTransition
                     key={id}
                     classNames="modal-wrapper"
-                    timeout={{ exit: transitionDuration }}
+                    timeout={transitionDuration}
                     unmountOnExit
                     appear={true}
                 >

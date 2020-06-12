@@ -105,6 +105,7 @@ h1 {
     top: 0;
     left: 0;
     transition: opacity ease var(--modal-transition-duration);
+    will-change: opacity;
 }
 .modal {
     transform: translate(0, 0px) scale(1);
@@ -118,6 +119,7 @@ h1 {
     max-width: 80vw;
     position: relative;
     color: var(--font-color-dark);
+    will-change: transform;
 }
 .modal a {
     color: var(--font-color-dark);
@@ -146,9 +148,29 @@ h1 {
 .modal-button--close:after {
     transform: translate(-50%, -50%) rotate(-45deg)
 }
-.modal-wrapper-exit, .modal-wrapper-enter, .modal-wrapper-appear {
+
+.modal-wrapper-enter, .modal-wrapper-appear {
     opacity: 0;
 }
-.modal-wrapper-exit > .modal, .modal-wrapper-enter > .modal, .modal-wrapper-appear > .modal {
+.modal-wrapper-exit {
+    opacity: 1;
+}
+.modal-wrapper-enter-active, .modal-wrapper-appear-active {
+    opacity: 1;
+}
+.modal-wrapper-exit-active {
+    opacity: 0;
+}
+
+.modal-wrapper-enter > .modal, .modal-wrapper-appear > .modal {
+    transform: translate(0, 24px) scale(.9);
+}
+.modal-wrapper-exit > .modal {
+    transform: translate(0, 0) scale(1);
+}
+.modal-wrapper-enter-active > .modal, .modal-wrapper-appear-active > .modal {
+    transform: translate(0, 0) scale(1);
+}
+.modal-wrapper-exit-active > .modal {
     transform: translate(0, 24px) scale(.9);
 }
