@@ -1,5 +1,6 @@
-import React, { useEffect } from "react"
+import React, { useState } from "react"
 import { useRouteQuery, RouterActions } from "@ethossoftworks/redux-router"
+import { Redirect } from "@ethossoftworks/redux-router/components"
 import { useDispatch } from "react-redux"
 import { setLoggedIn, isLoggedIn } from "../util"
 import { Dispatch } from "redux"
@@ -9,16 +10,14 @@ import { Page } from "./Page"
 export function Login() {
     const redirectPage = useRouteQuery().r
     const dispatch = useDispatch()
+    const [hasRedirected, setHasRedirected] = useState(false)
 
-    // // TODO: This is a little gross and doesn't work well
-    // if (isLoggedIn() && (transition === ENTERED || transition === ENTERING)) {
-    //     return <Redirect to={Routes.Home()} />
-    // }
-    useEffect(() => {
-        if (isLoggedIn()) {
-            dispatch(RouterActions.navigate(Routes.Home()))
-        }
-    }, [])
+    if (isLoggedIn() && !hasRedirected) {
+        setHasRedirected(true)
+        return <Redirect to={Routes.Home()} />
+    } else if (isLoggedIn() && hasRedirected) {
+        return null
+    }
 
     return (
         <Page className="page--login">

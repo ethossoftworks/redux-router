@@ -28,6 +28,5 @@ export function RouteSwitch({ children, route: routeProp }: SwitchProps): JSX.El
         match = child
     })
 
-    // return match ? (match as ReactElement).props.children : null
     return match ? React.cloneElement(match, { route }) : null
 }

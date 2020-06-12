@@ -11,7 +11,7 @@ export function Home() {
                 <Link to={Routes.Articles()}>Articles</Link>
             </div>
             <div>
-                <Link to={Routes.Home()}>Login</Link>
+                <Link to={Routes.Login()}>Login</Link>
             </div>
         </Page>
     )

@@ -16,10 +16,6 @@ export function App() {
         return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--page-transition-duration"))
     }, [])
 
-    // MAKE SURE TWO PAGES ARE TRANSITIONING AT THE SAME TIME
-    // FIX LOGIN REDIRECTION TO ARTICLES
-    // https://reactcommunity.org/react-transition-group/with-react-router
-
     return (
         <TransitionGroup className="page-cont">
             <CSSTransition
@@ -61,8 +57,3 @@ function AuthRoute({ children, route, ...rest }: RouteProps) {
         <Route {...rest}>{!isLoggedIn() && isAuthRoute ? <Redirect to={Routes.Login(route.url)} /> : children}</Route>
     )
 }
-
-// Gotchas with Animations
-// 1. Multiple routes will render at the same time with different route parameters passed in. So one view will have stale data
-//    - Using hooks with state will probably break
-// 2. Redirecting can be tricky
