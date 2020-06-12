@@ -15,7 +15,7 @@ export const Routes = {
     }),
     Login: route({
         path: "/login",
-        data: (url: string) => ({ query: { r: url } }),
+        data: (url?: string) => ({ query: { ...(url ? { r: url } : {}) } }),
     }),
 }
 

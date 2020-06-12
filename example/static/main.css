@@ -117,6 +117,10 @@ h1 {
     min-width: 300px;
     max-width: 80vw;
     position: relative;
+    color: var(--font-color-dark);
+}
+.modal a {
+    color: var(--font-color-dark);
 }
 .modal-button--close {
     position: absolute;

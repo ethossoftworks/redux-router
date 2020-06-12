@@ -1,21 +1,24 @@
 import React, { useEffect } from "react"
 import { useRouteQuery, RouterActions } from "@ethossoftworks/redux-router"
-import { Redirect } from "@ethossoftworks/redux-router/components"
 import { useDispatch } from "react-redux"
 import { setLoggedIn, isLoggedIn } from "../util"
 import { Dispatch } from "redux"
 import { Routes } from "../Routes"
 import { Page } from "./Page"
-import { TransitionStatus, ENTERED, ENTERING } from "react-transition-group/Transition"
 
-export function Login({ transition }: { transition: TransitionStatus }) {
+export function Login() {
     const redirectPage = useRouteQuery().r
     const dispatch = useDispatch()
 
-    // TODO: This is a little gross and doesn't work well
-    if (isLoggedIn() && (transition === ENTERED || transition === ENTERING)) {
-        return <Redirect to={Routes.Home()} />
-    }
+    // // TODO: This is a little gross and doesn't work well
+    // if (isLoggedIn() && (transition === ENTERED || transition === ENTERING)) {
+    //     return <Redirect to={Routes.Home()} />
+    // }
+    useEffect(() => {
+        if (isLoggedIn()) {
+            dispatch(RouterActions.navigate(Routes.Home()))
+        }
+    }, [])
 
     return (
         <Page className="page--login">

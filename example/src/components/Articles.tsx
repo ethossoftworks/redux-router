@@ -5,10 +5,8 @@ import { Routes } from "../Routes"
 import { Modal } from "./Modal"
 import { useDispatch } from "react-redux"
 import { RouterActions, useRouteMatch } from "@ethossoftworks/redux-router"
-import { TransitionStatus } from "react-transition-group/Transition"
 
-export function Articles({ transition }: { transition: TransitionStatus }) {
-    const dispatch = useDispatch()
+export function Articles() {
     const articleMatch = useRouteMatch(Routes.Article)
 
     return (
@@ -19,13 +17,28 @@ export function Articles({ transition }: { transition: TransitionStatus }) {
                     <Link to={Routes.Article((i + 1).toString())}>Article {i + 1}</Link>
                 </div>
             ))}
-            <Modal
-                open={articleMatch !== null}
-                showClose={true}
-                onClose={() => dispatch(RouterActions.navigate(Routes.Articles()))}
-            >
-                Hello {articleMatch?.data.params.articleId}
-            </Modal>
+            <ArticleModal open={articleMatch !== null} articleId={articleMatch?.data.params.articleId || ""} />
         </Page>
+    )
+}
+
+function ArticleModal({ articleId, open }: { articleId: string; open: boolean }) {
+    const dispatch = useDispatch()
+
+    return (
+        <Modal
+            id={articleId}
+            open={open}
+            showClose={true}
+            onClose={() => dispatch(RouterActions.navigate(Routes.Articles()))}
+        >
+            This is article {articleId}.
+            <br />
+            Notice the URL changed when this modal opened.
+            <br />
+            <div>
+                <Link to={Routes.Article("5")}>Article 5</Link>
+            </div>
+        </Modal>
     )
 }

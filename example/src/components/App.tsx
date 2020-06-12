@@ -28,27 +28,23 @@ export function App() {
                 appear={true}
                 key={route.item.groupId}
             >
-                {(state) => {
-                    return (
-                        <RouteSwitch route={route}>
-                            <Route matches={Routes.Home}>
-                                <Home transition={state} />
-                            </Route>
-                            <AuthRoute matches={[Routes.Articles, Routes.Article]}>
-                                <Articles transition={state} />
-                            </AuthRoute>
-                            {/* <Route matches={[Routes.Articles, Routes.Article]}>
+                <RouteSwitch route={route}>
+                    <Route matches={Routes.Home}>
+                        <Home />
+                    </Route>
+                    <AuthRoute matches={[Routes.Articles, Routes.Article]}>
+                        <Articles />
+                    </AuthRoute>
+                    {/* <Route matches={[Routes.Articles, Routes.Article]}>
                             <Articles />
                         </Route> */}
-                            <Route matches={Routes.Login}>
-                                <Login transition={state} />
-                            </Route>
-                            <Route matches={PageNotFound}>
-                                <NotFound />
-                            </Route>
-                        </RouteSwitch>
-                    )
-                }}
+                    <Route matches={Routes.Login}>
+                        <Login />
+                    </Route>
+                    <Route matches={PageNotFound}>
+                        <NotFound />
+                    </Route>
+                </RouteSwitch>
             </CSSTransition>
         </TransitionGroup>
     )

@@ -1,14 +1,15 @@
 import React, { useMemo, useEffect } from "react"
-import { CSSTransition } from "react-transition-group"
+import { CSSTransition, TransitionGroup } from "react-transition-group"
 
 type ModalProps = {
     open: boolean
+    id: string | number
     children: React.ReactNode
     onClose?: () => void
     showClose?: boolean
 }
 
-export function Modal({ open, children, onClose, showClose }: ModalProps): JSX.Element {
+export function Modal({ open, children, onClose, showClose, id }: ModalProps): JSX.Element {
     showClose == showClose || false
     const transitionDuration = useMemo(() => {
         return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--modal-transition-duration"))
@@ -24,22 +25,32 @@ export function Modal({ open, children, onClose, showClose }: ModalProps): JSX.E
     })
 
     return (
-        <CSSTransition
-            in={open}
-            classNames="modal-wrapper"
-            timeout={{ exit: transitionDuration }}
-            unmountOnExit
-            appear={true}
-        >
-            <div className="modal-wrapper" onClick={onClose ? (ev) => handleWrapperClick(onClose, ev) : () => {}}>
-                <div className="modal">
-                    {showClose && (
-                        <div className="modal-button--close" onClick={onClose ? (ev) => onClose() : () => {}}></div>
-                    )}
-                    {children}
-                </div>
-            </div>
-        </CSSTransition>
+        <TransitionGroup>
+            {open && (
+                <CSSTransition
+                    key={id}
+                    classNames="modal-wrapper"
+                    timeout={{ exit: transitionDuration }}
+                    unmountOnExit
+                    appear={true}
+                >
+                    <div
+                        className="modal-wrapper"
+                        onClick={onClose ? (ev) => handleWrapperClick(onClose, ev) : () => {}}
+                    >
+                        <div className="modal">
+                            {showClose && (
+                                <div
+                                    className="modal-button--close"
+                                    onClick={onClose ? (ev) => onClose() : () => {}}
+                                ></div>
+                            )}
+                            {children}
+                        </div>
+                    </div>
+                </CSSTransition>
+            )}
+        </TransitionGroup>
     )
 }
 
