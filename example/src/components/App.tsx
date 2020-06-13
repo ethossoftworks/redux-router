@@ -1,22 +1,43 @@
-import React from "react"
-import { RouteSwitch, Route } from "@ethossoftworks/redux-router/components"
+import React, { useMemo } from "react"
+import { Route, Redirect, RouteProps } from "@ethossoftworks/redux-router/components"
 import { Routes } from "../Routes"
 import { Home } from "./Home"
 import { Articles } from "./Articles"
 import { Login } from "./Login"
+import { PageNotFound } from "@ethossoftworks/redux-router"
+import { NotFound } from "./NotFound"
+import { isLoggedIn } from "../util"
+import { AnimatedRouteSwitch } from "./AnimatedRouteSwitch"
 
 export function App() {
+    const transitionDuration = useMemo(() => {
+        return parseInt(getComputedStyle(document.documentElement).getPropertyValue("--page-transition-duration"))
+    }, [])
+
     return (
-        <RouteSwitch>
+        <AnimatedRouteSwitch
+            containerClassName="page-cont"
+            transitionClassNames="page-wrapper"
+            transitionDuration={transitionDuration}
+        >
             <Route matches={Routes.Home}>
                 <Home />
             </Route>
-            <Route matches={[Routes.Articles, Routes.Article]}>
+            <AuthRoute matches={[Routes.Articles, Routes.Article]}>
                 <Articles />
+            </AuthRoute>
+            <Route matches={Routes.Login}>{isLoggedIn() ? <Redirect to={Routes.Home()} /> : <Login />}</Route>
+            <Route matches={PageNotFound}>
+                <NotFound />
             </Route>
-            <Route matches={Routes.Login}>
-                <Login />
-            </Route>
-        </RouteSwitch>
+        </AnimatedRouteSwitch>
     )
+}
+
+function AuthRoute({ children, route, ...rest }: RouteProps) {
+    if (!route) {
+        return null
+    }
+
+    return <Route {...rest}>{!isLoggedIn() ? <Redirect to={Routes.Login(route.url)} /> : children}</Route>
 }

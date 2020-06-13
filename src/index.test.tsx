@@ -53,6 +53,15 @@ const Routes = {
             hash,
         }),
     }),
+    OptionalParameter: route({
+        path: "/optional",
+        data: (optional?: string, optional2?: number) => ({
+            params: {
+                ...(optional ? { optional: optional } : {}),
+                ...(optional2 ? { optional2: optional2.toString() } : {}),
+            },
+        }),
+    }),
 }
 
 type TestState = {
@@ -152,6 +161,18 @@ const Tests: TestGroup<void> = {
             route = createRouteForData(defaultLocation, Routes, Routes.Hash("this is another test"))
             assert(route.url === "/hash#this%20is%20another%20test")
             assert(route.data.hash === "this is another test")
+        },
+        testOptionalRouteParam: async ({ assert }) => {
+            // 1. Test that Routes without parameters have accurate parameter hints with correct number of args and types
+            // 2. Test that Routes with parameters have accurate parameter hints with correct number of args and types
+
+            const test1 = Routes.OptionalParameter("test")
+            const test2 = Routes.OptionalParameter("test2", 2)
+            const test3 = Routes.OptionalParameter()
+
+            assert(test1.params.optional === "test", "Optional parameter invalid")
+            assert(test2.params.optional === "test2" && test2.params.optional2 === "2", "Optional parameter 2 invalid")
+            assert(!test3.params.optional && !test3.params.optional2, "Optional parameters were populated")
         },
         testIncorrectReducerKey: async ({ fail }) => {
             try {

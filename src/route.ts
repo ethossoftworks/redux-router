@@ -119,7 +119,7 @@ function replacePathSegments(path: string, params: Record<string, string>): stri
     return path
 }
 
-type RouteItemCreatorReturn<T extends (...args: any) => Partial<RouteData>> = T extends () => Partial<RouteData>
+type RouteItemCreatorReturn<T extends (...args: any) => Partial<RouteData>> = T extends ([]) => Partial<RouteData>
     ? RouteItem<[]>
     : RouteItem<Parameters<T>>
 
