@@ -1,10 +1,10 @@
 import React from "react"
 import { useRouteQuery, RouterActions } from "@ethossoftworks/redux-router"
 import { useDispatch } from "react-redux"
-import { setLoggedIn } from "../util"
 import { Dispatch } from "redux"
 import { Routes } from "../Routes"
 import { Page } from "./Page"
+import { LoggedInActions } from "../redux/user"
 
 export function Login() {
     const redirectPage = useRouteQuery().r
@@ -27,6 +27,6 @@ export function Login() {
 }
 
 function handleLogin(dispatch: Dispatch, redirectPage?: string) {
-    setLoggedIn(true)
+    dispatch(LoggedInActions.loggedInChanged(true))
     dispatch(RouterActions.navigate(redirectPage ? redirectPage : Routes.Home()))
 }

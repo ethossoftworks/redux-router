@@ -42,7 +42,7 @@ h1 {
     opacity: 0;
     transform: translate3d(0, -10px, 0);
 }
-.page-wrapper-enter-active, .page-wrapper-appear-active {
+.page-wrapper-enter-active, .page-wrapper-appear-active, .page-wrapper-enter-done, .page-wrapper-appear-done {
     transform: translate3d(0, 0px, 0);
     opacity: 1;
     position: relative;

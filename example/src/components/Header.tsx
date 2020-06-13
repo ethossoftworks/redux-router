@@ -1,24 +1,24 @@
 import React from "react"
-import { setLoggedIn, isLoggedIn } from "../util"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { RouterActions } from "@ethossoftworks/redux-router"
 import { Routes } from "../Routes"
-import { useRoute } from "@ethossoftworks/redux-router"
+import { AppState } from "../redux/store"
+import { LoggedInActions } from "../redux/user"
 
 export function Header() {
     const dispatch = useDispatch()
-    useRoute() // Force re-render on RouterAction because I'm too lazy to implement a true redux store for isLoggedIn() check
+    const isLoggedIn = useSelector((state: AppState) => state.loggedIn)
 
     return (
         <div className="header">
             <div className="header-title" onClick={() => dispatch(RouterActions.navigate(Routes.Home()))}>
                 Redux Router Example
             </div>
-            {isLoggedIn() && (
+            {isLoggedIn && (
                 <div
                     className="logout-button"
                     onClick={() => {
-                        setLoggedIn(false)
+                        dispatch(LoggedInActions.loggedInChanged(false))
                         dispatch(RouterActions.navigate(Routes.Home()))
                     }}
                 >
