@@ -1,11 +1,13 @@
 import React from "react"
-import { isLoggedIn, setLoggedIn } from "../util"
+import { setLoggedIn, isLoggedIn } from "../util"
 import { useDispatch } from "react-redux"
 import { RouterActions } from "@ethossoftworks/redux-router"
 import { Routes } from "../Routes"
+import { useRoute } from "@ethossoftworks/redux-router"
 
 export function Header() {
     const dispatch = useDispatch()
+    useRoute() // Force re-render on RouterAction because I'm too lazy to implement a true redux store for isLoggedIn() check
 
     return (
         <div className="header">
