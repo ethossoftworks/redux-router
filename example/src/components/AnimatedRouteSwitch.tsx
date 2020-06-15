@@ -24,7 +24,7 @@ export function AnimatedRouteSwitch({
                 classNames={transitionClassNames}
                 timeout={transitionDuration}
                 appear={true}
-                key={route.item.groupId}
+                key={route.item.meta.transitionId || route.key}
             >
                 <RouteSwitch route={route}>{children}</RouteSwitch>
             </CSSTransition>

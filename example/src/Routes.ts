@@ -6,11 +6,11 @@ export const Routes = {
     }),
     Articles: route({
         path: "/articles",
-        groupId: "articles",
+        meta: { transitionKey: "articles" },
     }),
     Article: route({
         path: "/articles/:articleId",
-        groupId: "articles",
+        meta: { transitionKey: "articles" },
         data: (articleId: string) => ({ params: { articleId } }),
     }),
     Login: route({
