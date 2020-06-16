@@ -416,6 +416,28 @@ const Tests: TestGroup<void> = {
             assert(document.querySelector("#route-override") !== null)
             assert(document.querySelector("#route-override-this-should-not-exist") === null)
         },
+        testRouteOverride: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+            const route = createRouteForData(defaultLocation, Routes, Routes.OptionalParameter())
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <RouteSwitch route={route}>
+                        <RouteComponent matches={Routes.Home}>
+                            <div id="no-match"></div>
+                        </RouteComponent>
+                        <RouteComponent matches={Routes.OptionalParameter}>
+                            <div id="should-match"></div>
+                        </RouteComponent>
+                    </RouteSwitch>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.querySelector("#should-match") !== null)
+            assert(document.querySelector("#no-match") === null)
+        },
         testHooks: async ({ assert }) => {
             const store = configureStore("/", browserLocation)
             store.dispatch(RouterActions.navigate(Routes.Home()))
