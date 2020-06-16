@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux"
-import { RouterState } from "./reducer"
-import { Route, isRouteMatch, createRouteForRouterState, RouteItem } from "./route"
-import { withRouterContext } from "./context"
+import { RouterState } from "../reducer"
+import { Route, isRouteMatch, createRouteForRouterState, RouteItem } from "../route"
+import { withRouterContext } from "../context"
 
 export const useRoute = withRouterContext((context) => (): Route => {
     const state = useSelector(

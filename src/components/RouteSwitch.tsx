@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react"
-import { useRoute } from "../hooks"
+import { useRoute } from "./hooks"
 import { Uninitialized, isRouteMatch, Route } from "../route"
 
 export type SwitchProps = {

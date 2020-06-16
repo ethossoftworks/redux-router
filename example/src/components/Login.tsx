@@ -1,5 +1,6 @@
 import React from "react"
-import { useRouteQuery, RouterActions } from "@ethossoftworks/redux-router"
+import { RouterActions } from "@ethossoftworks/redux-router"
+import { useRouteQuery } from "@ethossoftworks/redux-router/components"
 import { useDispatch } from "react-redux"
 import { Dispatch } from "redux"
 import { Routes } from "../Routes"

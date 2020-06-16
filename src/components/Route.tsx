@@ -1,6 +1,6 @@
 import React from "react"
 import { Route, RouteItem, isRouteMatch } from "../route"
-import { useRoute } from "../hooks"
+import { useRoute } from "./hooks"
 
 export type RouteProps = {
     children?: React.ReactNode

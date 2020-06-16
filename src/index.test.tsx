@@ -14,9 +14,8 @@ import { createStore, combineReducers, applyMiddleware, Store, Action, AnyAction
 import { RouterState, RouterActions } from "./reducer"
 import ReactDOM from "react-dom"
 import React from "react"
-import { Link, Route as RouteComponent, Redirect, RouteSwitch, RouteProps } from "./components"
+import { Link, Route as RouteComponent, Redirect, RouteSwitch, RouteProps, useRouteMatch } from "./components"
 import { Provider, useSelector } from "react-redux"
-import { useRouteMatch } from "./hooks"
 
 const ORIGIN = "https://example.com"
 

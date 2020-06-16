@@ -1,10 +1,10 @@
 import React from "react"
 import { Page } from "./Page"
-import { Link } from "@ethossoftworks/redux-router/components"
+import { Link, useRouteMatch } from "@ethossoftworks/redux-router/components"
 import { Routes } from "../Routes"
 import { Modal } from "./Modal"
 import { useDispatch } from "react-redux"
-import { RouterActions, useRouteMatch } from "@ethossoftworks/redux-router"
+import { RouterActions } from "@ethossoftworks/redux-router"
 
 export function Articles() {
     const articleMatch = useRouteMatch(Routes.Article)

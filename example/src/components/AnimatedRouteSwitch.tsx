@@ -1,7 +1,6 @@
 import React from "react"
-import { useRoute } from "@ethossoftworks/redux-router"
 import { TransitionGroup, CSSTransition } from "react-transition-group"
-import { RouteSwitch } from "@ethossoftworks/redux-router/components"
+import { RouteSwitch, useRoute } from "@ethossoftworks/redux-router/components"
 
 type AnimatedRouteSwitchProps = {
     transitionDuration: number | { appear?: number; enter?: number; exit?: number }
