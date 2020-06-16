@@ -14,7 +14,7 @@ import { createStore, combineReducers, applyMiddleware, Store, Action, AnyAction
 import { RouterState, RouterActions } from "./reducer"
 import ReactDOM from "react-dom"
 import React from "react"
-import { Link, Route as RouteComponent, Redirect, RouteSwitch } from "./components"
+import { Link, Route as RouteComponent, Redirect, RouteSwitch, RouteProps } from "./components"
 import { Provider, useSelector } from "react-redux"
 import { useRouteMatch } from "./hooks"
 
@@ -395,6 +395,27 @@ const Tests: TestGroup<void> = {
             assert(document.querySelector("#home") !== null)
             assert(document.querySelector("#home2") === null)
         },
+        testCustomRouteComponent: async ({ assert }) => {
+            const store = configureStore("/", browserLocation)
+            store.dispatch(RouterActions.navigate(Routes.Home()))
+
+            ReactDOM.render(
+                <TestApp store={store}>
+                    <RouteSwitch>
+                        <RouteComponent matches={Routes.MultiParam}>
+                            <div id="home">Home 1</div>
+                        </RouteComponent>
+                        <RouteOverride matches={Routes.Home}>
+                            <div id="route-override-this-should-not-exist"></div>
+                        </RouteOverride>
+                    </RouteSwitch>
+                </TestApp>,
+                document.getElementById("root")
+            )
+
+            assert(document.querySelector("#route-override") !== null)
+            assert(document.querySelector("#route-override-this-should-not-exist") === null)
+        },
         testHooks: async ({ assert }) => {
             const store = configureStore("/", browserLocation)
             store.dispatch(RouterActions.navigate(Routes.Home()))
@@ -445,6 +466,14 @@ const Tests: TestGroup<void> = {
             assert(store.getState().router.title === "Home")
         },
     },
+}
+
+function RouteOverride({ matches }: RouteProps) {
+    return (
+        <RouteComponent matches={matches}>
+            <div id="route-override"></div>
+        </RouteComponent>
+    )
 }
 
 async function sleep(timeout: number) {
