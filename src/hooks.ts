@@ -4,7 +4,10 @@ import { Route, isRouteMatch, createRouteForRouterState, RouteItem } from "./rou
 import { withRouterContext } from "./context"
 
 export const useRoute = withRouterContext((context) => (): Route => {
-    const state = useSelector((state) => (state as any)[context.reducerKey] as RouterState)
+    const state = useSelector(
+        (state) => (state as any)[context.reducerKey] as RouterState,
+        (a, b) => a.key === b.key && a.url === b.url
+    )
     return createRouteForRouterState(state)
 })
 
