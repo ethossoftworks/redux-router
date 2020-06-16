@@ -25,9 +25,24 @@ const prodConfig = {
         components: { import: `./src/components/index.ts`, dependOn: "core" }, // Prevents code duplication of effects and prevents EffectSymbol from being re-declared
     },
     externals: {
-        react: "react",
-        redux: "redux",
-        "react-redux": "react-redux",
+        react: {
+            amd: "react",
+            commonjs: "react",
+            commonjs2: "react",
+            root: "React",
+        },
+        redux: {
+            amd: "redux",
+            commonjs: "redux",
+            commonjs2: "redux",
+            root: "Redux",
+        },
+        "react-redux": {
+            amd: "react-redux",
+            commonjs: "react-redux",
+            commonjs2: "react-redux",
+            root: "ReactRedux",
+        },
     },
     output: {
         filename: `${libraryFileName}.[name].js`,
