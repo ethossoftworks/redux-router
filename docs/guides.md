@@ -5,7 +5,7 @@
 - [Redirecting](#redirecting)
 - [Handling 404s](#handling-404s)
 - [Page Titles](#page-titles)
-- [Components](#components)
+- [Links/Anchor Tags](#linksanchor-tags)
 - [Animations](#animations)
 
 
@@ -128,8 +128,7 @@ Using the `<RouteSwitch>` component probably the main way you will want to handl
 `<RouteSwitch>` will only pay attention to components that have a `matches` property passed to them. This allows you to extend the `<Route>` component if you need to.
 
 ```tsx
-import { RouteSwitch } from "@ethossoftworks/redux-router/components"
-import { Route } from "@ethossoftworks/redux-router/components"
+import { RouteSwitch, Route } from "@ethossoftworks/redux-router/components"
 
 function MyComponent() {
     return (
@@ -150,15 +149,249 @@ function MyComponent() {
 
 
 # Redirecting
+Redirecting can be achieved in one of two ways:
+1. Calling `RouterActions.navigate()`
+2. Using the `<Redirect />` Component
+
+## Redirecting with `RouterActions.navigate()`
+You may use `RouterActions.navigate()` from anywhere to immediately redirect to another route. If you would like the current page to be replaced (i.e. a transparent redirect) you may pass `true` for the `replace` option in `RouterActions.navigate()`. The `replace` option will prevent the original page from being added to history.
+
+## Redirecting with `<Redirect />`
+Sometimes it's easier to just use a component to redirect. Redux Router comes with the `<Redirect />` component for this purpose. All the component does is dispatch the `RouterActions.navigate()` action. There are optional parameters for a `condition` and for `replace`. The `condition` parameter is a parameter that will prevent the component from rendering unless it is true.
 
 
 # Handling 404s
+Redux Router handles with the special constant `RouteItem` `PageNotFound`. If you want to handle 404s in your app you can match with the `PageNotFound` constant.
 
+```tsx
+import { RouteSwitch, Route } from "@ethossoftworks/redux-router/components"
+import { PageNotFound } from "@ethossoftworks/redux-router"
+
+function MyApp() {
+    return (
+        <RouteSwitch>
+            <Route matches={Routes.Home}>
+                <Home />
+            </Route>
+            <Route matches={Routes.Articles}>
+                <Articles />
+            </Route>
+            <Route matches={Routes.Article}>
+                <Article />
+            </Route>
+            <Route matches={PageNotFound}>
+                <MyPageNotFound />
+            </Route>
+        </RouteSwitch>
+    )
+}
+```
 
 # Page Titles
+Redux Router supports automatic setting of page titles for your routes. If you provide the `title` parameter in your `RouteItem` the title will be automatically set when that route is rendered. The `title` parameter is a lambda that passes the current `RouteData` as a parameter. If you wish to handle page titles yourself, just ignore the `title` parameter completely.
+
+```tsx
+import { route } from "@ethossoftworks/redux-router"
 
 
-# Components
+export const Routes = {
+    Home: route({
+        path: "/",
+        title: () => "Home",
+    }),
+    Articles: route({
+        path: "/articles",
+        title: () => "Articles",
+    }),
+    Article: route({
+        path: "/articles/:articleId",
+        data: (articleId: string) => ({ params: { articleId } }),
+        title: (data) => `Article - ${data.params.articleId}`,
+    })
+}
+
+```
+
+# Links/Anchor Tags
+There are a couple of helpers you may use for generating links in your app.
+1. The `<Link />` component
+2. The `createRouteForData()` function
+3. Create your own standard anchor tags
+
+## Using the `<Link />` Component
+Using the provided `<Link />` component is simple. You may pass either a string or `RouteItemData`. Using `RouteItemData` is preferred as it is type safe and allows you to change your routes easily in the future. The `<Link />` component creates a valid anchor tag and hijacks the click listener to use `RouterActions.navigate()`.
+
+```tsx
+import { Link } from "@ethossoftworks/redux-router/components"
+
+function MyComponent() {
+    return (
+        <div>Click <Link to={Routes.Articles()}>Here</Link>
+    )
+}
+```
+
+## Using `createRouteForData()`
+`createRouteForData()` is a convenience function that creates a `Route` for a given `RouteItemData`. You can then use the route's `url` property. The `<Link />` component uses `createRouteForData()` under the hood to generation.
+
+```tsx
+import { createRouteForData } from "@ethossoftworks/redux-router"
+
+function MyComponent() {
+    return (
+        <div>Click <a href={createRouteForData(Routes.Articles()).url}>Here</a>
+    )
+}
+```
+
+## Standard Anchor Tag
+Redux Router supports standard anchor tags as well. Although this method is not as scalable, it works exactly like typing a URL into your browser.
+
+```tsx
+import { createRouteForData } from "@ethossoftworks/redux-router"
+
+function MyComponent() {
+    return (
+        <div>Click <a href="/articles">Here</a>
+    )
+}
+```
 
 
 # Animations
+Redux Router supports animations. For a complete example you can view the [Example Project](example/). A simple example is provided below:
+
+___App.tsx___
+```tsx
+import { RouteSwitch } from "@ethossoftworks/redux-router/components"
+import { route } from "@ethossoftworks/redux-router"
+
+function MyApp() {
+    const route = useRoute()
+
+    return (
+        <TransitionGroup className="page-cont">
+            <CSSTransition
+                classNames="page-wrapper"
+                timeout={250}
+                appear={true}
+                key={route.key}
+            >
+                <RouteSwitch route={route}>
+                    <Route matches={Routes.Home}>
+                        <Home />
+                    </Route>
+                    <Route matches={Routes.Articles}>
+                        <Articles />
+                    </Route>
+                    <Route matches={PageNotFound}>
+                        <NotFound />
+                    </Route>
+                </RouteSwitch>
+            </CSSTransition>
+        </TransitionGroup>
+    )
+}
+```
+
+___main.css___
+```css
+.page-cont {
+    display: grid;
+}
+.page-wrapper {
+    grid-row: 1;
+    grid-column: 1;
+    position: relative;
+    min-height: 100vh;
+    background: var(--bg-color);
+}
+.page-wrapper-enter, .page-wrapper-appear {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0);
+}
+.page-wrapper-enter-active, .page-wrapper-appear-active, .page-wrapper-enter-done, .page-wrapper-appear-done {
+    transform: translate3d(0, 0px, 0);
+    opacity: 1;
+    position: relative;
+    z-index: 1;
+    transition: opacity ease 250ms, transform ease 250ms;
+}
+```
+
+Here's a breakdown of the core components:
+1. Use `const route = useRoute()` to be able to force the `RouteSwitch` component to render for a specific route. This is because there will be two different routes visible at the same time; one animating out and one animating in. They each need to render with their own `route` property. The `TransitionGroup` and `CSSTransition` components maintains the original `route` property that was set during the initial render.
+2. Set the `appear` property to `true` on the `CSSTransition` component so that the enter animation plays when the page is refreshed. This is optional.
+3. Set the `key` property to the route's unique key. The `CSSTransition` must have a unique key in order to work.
+4. Set the `route` property on the `RouteSwitch` component as discussed in point `1`.
+
+Once those elements are in place, your page animations should be working smoothly.
+
+## Gotchas with animations
+### State Access
+Multiple routes will render at the same time with different route parameters passed in. If you are using hooks in your page components, make sure that the data you access will still exist for both page components under transition.
+### Redirecting
+* When using the `<Redirect />` component, make sure it’s the only component returned otherwise the rest of the component will be rendered for a short time (this may be acceptable in certain circumstances)
+* Redirection should only happen once. This can be achieved by using the `Redirect` component or by using hooks
+* Redirecting on page enter needs to happen at the `TransitionGroup` level
+
+Here are a few common redirection attempts with animations and why they don't work:
+### Component Redirection
+```tsx
+function MyComponent() {
+    if (isLoggedIn()) {
+        return <Redirect to={Routes.Home()} />
+    }
+
+    // ...
+}
+```
+__Problems__:
+* Will override a redirect within the same page when the condition is met because the redirect component will mount for the first time when the condition is true.
+
+```tsx
+function MyComponent() {
+    return (
+        <div>
+            <Redirect to={Routes.Home()} condition={isLoggedIn()} />
+            {/* .... */}
+        </div>
+    )
+}
+```
+__Problems__:
+* Will override a redirect within the same page when the condition is met because the redirect component will mount for the first time when the condition is true.
+
+```tsx
+function MyComponent() {
+    const [hasRedirected, setHasRedirected] = useState(false)
+
+    if (isLoggedIn() && !hasRedirected) {
+        setHasRedirected(true)
+        return <Redirect to={Routes.Home()} />
+    } else if (isLoggedIn() && hasRedirected) {
+        return null
+    }
+}
+```
+
+__Problems__
+* No exit animation
+* Does not work when reloading the page
+
+### Hook Redirection
+```tsx
+function MyComponent() {
+    useEffect(() => {
+        if (isLoggedIn()) {
+            dispatch(RouterActions.navigate(Routes.Home(), true))
+        }
+    }, [])
+
+    if (isLoggedIn()) {
+        return null
+    }
+}
+```
+__Problems__
+* No exit animation
