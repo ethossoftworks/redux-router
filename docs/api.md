@@ -18,7 +18,7 @@
 * [Components](#Components)
     * [Link](#Link)
     * [Redirect](#Redirect)
-    * [Route](#route-component)
+    * [Route](#route-route-component)
     * [RouteSwitch](#RouteSwitch)
 * [Hooks](#Hooks)
     * [useRoute](#useRoute)
@@ -29,7 +29,7 @@
 * [Types](#Types)
     * [RouterLocation](#RouterLocation)
     * [RouterState](#RouterState)
-    * [Route](#route-type)
+    * [Route](#route-route-type)
     * [RouteMap](#RouteMap)
     * [RouteItem](#RouteItem)
     * [RouteData](#RouteData)
@@ -179,7 +179,7 @@ export type RedirectProps = {
 A component for redirecting declaratively. See [Redirecting](guides.md#redirecting).
 
 &nbsp;
-### `Route` {#route-component}
+### `Route`
 ```typescript
 function Route(props: RouteProps): JSX.Element | null
 
@@ -276,7 +276,7 @@ Represents the current state of the router middleware.
 * `title`: The provided title for the current route
 
 &nbsp;
-### `Route` {#route-type}
+### `Route`
 ```typescript
 type Route = {
     key: string
