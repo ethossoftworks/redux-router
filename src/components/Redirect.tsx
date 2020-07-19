@@ -9,7 +9,7 @@ export type RedirectProps = {
     replace?: boolean
 }
 
-export function Redirect({ to, condition, replace = true }: RedirectProps) {
+export function Redirect({ to, condition, replace = true }: RedirectProps): JSX.Element | null {
     const dispatch = useDispatch()
 
     useEffect(() => {

@@ -2,12 +2,12 @@ import React, { ReactElement } from "react"
 import { useRoute } from "./hooks"
 import { Uninitialized, isRouteMatch, Route } from "../route"
 
-export type SwitchProps = {
+export type RouteSwitchProps = {
     children?: React.ReactNode
     route?: Route
 }
 
-export function RouteSwitch({ children, route: routeProp }: SwitchProps): JSX.Element | null {
+export function RouteSwitch({ children, route: routeProp }: RouteSwitchProps): JSX.Element | null {
     const currentRoute = useRoute()
     const route = routeProp ? routeProp : currentRoute
 

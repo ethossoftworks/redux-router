@@ -28,7 +28,7 @@ export type RouteData = {
 export const Uninitialized = Object.freeze(Object.assign(_route({ path: "" }), { key: "@Uninitialized" }))
 export const PageNotFound = Object.freeze(Object.assign(_route({ path: "" }), { key: "@PageNotFound" }))
 
-export const createRouteForRouterState = withRouterContext((context) => (state: RouterState) => ({
+export const createRouteForRouterState = withRouterContext((context) => (state: RouterState): Route => ({
     ...state,
     item: state.key === PageNotFound.key ? PageNotFound : context.routes[state.key] || PageNotFound,
 }))
