@@ -8,7 +8,7 @@ Redux Router is a simple page router built for handling page navigation via Redu
 - [API Reference](docs/api.md)
 - [Guides](docs/guides.md)
 - [Example Project](example/)
-- [Example Project Demo](https://ethossoftworks.github.io/redux-router/example/index.html)
+- [Example Project Demo](https://ethossoftworks.github.io/redux-router/example/build/index.html)
 - [Release Notes](docs/release-notes.md)
 
 # Features
