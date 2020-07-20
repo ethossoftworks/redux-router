@@ -1,6 +1,4 @@
-export * from "./hooks"
 export * from "./location"
 export * from "./middleware"
-export * from "./reducer"
+export { RouterActionTypes, RouterActions, RouterState } from "./reducer"
 export * from "./route"
-export * from "./context"
