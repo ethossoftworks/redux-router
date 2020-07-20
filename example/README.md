@@ -1,2 +1,2 @@
 # Redux Router Example
-View the demo [here](https://ethossoftworks.github.io/redux-router/example/build/index.html)
+View the demo [here](https://redux-router.ethossoftworks.com)
