@@ -4,7 +4,7 @@
     "description": "",
     "license": "MIT",
     "dependencies": {
-        "@ethossoftworks/redux-router": "./ethossoftworks-redux-router-1.0.0.tgz",
+        "@ethossoftworks/redux-router": "^1.0.0",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-redux": "^7.2.0",
