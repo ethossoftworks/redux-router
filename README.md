@@ -1,6 +1,6 @@
 # Redux Router
 
-Redux Router is a simple page router build to allow all route handling via Redux.
+Redux Router is a simple page router built for handling page navigation via Redux.
 
 # Documentation
 - [Installation](#installation)
@@ -15,10 +15,14 @@ Redux Router is a simple page router build to allow all route handling via Redux
 - Typed routes
 - Page title support
 - Animation support
-- Redirect, back, forward
 
 # Motivation
-There are several popular routing libraries built for React and Redux that are great. However, I became frustrated with path matching being the norm and not having strictly typed Route creators. In addition, when using Redux, it does not make sense to have state stored externally. Redux Router is my attempt to solve those problems and make routing in an SPA as developer-friendly as possible.
+There are several popular routing libraries built for React and Redux that are great. However, two things commonly found in other routing libraries frustrated me:
+1. String path matching for route rendering as opposed to strictly typed Route objects.
+2. Externally stored location state
+3. Lack of typed parameters for routes
+
+Redux Router is my attempt to solve those problems and make page routing in an SPA as developer-friendly as possible.
 
 # Installation
 `redux-router` can be installed using NPM or Yarn. The scripts provided by the NPM package are UMD scripts and will also work as script tags.
@@ -44,8 +48,8 @@ Only the `core` script is necessary. The `components` script adds components and
 
 # Usage
 
-## 1. Create some Routes
-Routes are created with the Route creator helper method `route()`. The route creator specifies the path match (this is the only place you will have to use path matches), the data creator, and an optional title creator. Don't worry about adding types to your `Routes` object, TypeScript type inference works really well here.
+## 1. Create Some Routes
+Routes are created with the `route()` function. The `route()` function specifies the path match (this is the only place you will have to use path matches), the data creator, and an optional title creator. Don't worry about specifying the type on your `Routes` object, TypeScript type inference works really well here.
 
 ```typescript
 // Routes.ts
@@ -68,9 +72,9 @@ export const Routes = {
 ```
 
 ## 2. Initialize the Router Middleware and Add the Router Reducer
-To use Redux Router you need to create the middleware and run the `init()` method after `createStore()` has been called. The `init()` function initializes the router state with the current route.
+To use Redux Router you need to create the middleware using `createRouterMiddleware()` and run the `init()` method after `createStore()` has been called. The `init()` function initializes the router state with the current route.
 
-You will also need to add the Router Reducer to your reducer. You may use any name for the router state in your state as long as the proper key is passed into `createRouterMiddleware()`.
+You will also need to add the Router Reducer to your reducer. You may use any name for the router reducer in your application state as long as the proper key is passed into `createRouterMiddleware()`.
 
 ```typescript
 // Store.ts
@@ -95,7 +99,7 @@ function configureStore() {
 export const store = configureStore()
 ```
 
-## 3. Render A Page
+## 3. Render a Page
 All that's left is to render a page based on the current route! This can be done with a React components or more standard JS control structures.
 
 ### React Components
@@ -168,3 +172,6 @@ function Home() {
     )
 }
 ```
+
+# Additional Documentation
+For addition documentation, please read the [guides](docs/guides.md) and [api](docs/api.md) documentation

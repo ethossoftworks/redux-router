@@ -1,4 +1,4 @@
-# Api
+# API
 * [Core API](#Core-API)
     * [route](#route)
     * [createRouterMiddleware](#createRouterMiddleware)
@@ -177,6 +177,8 @@ export type RedirectProps = {
 }
 ```
 A component for redirecting declaratively. See [Redirecting](guides.md#redirecting).
+* `condition`: If the passed condition is true, the component will be rendered and redirect. Otherwise, it will return null.
+* `replace`: If true, the current route will be replaced and not pushed onto the history stack.
 
 &nbsp;
 ### `Route`
@@ -190,6 +192,8 @@ export type RouteProps = {
 }
 ```
 The core component for rendering routes. See [Route Matching](#guides.md#route-matching).
+* `matches`: The match condition for allowing rendering of the route children.
+* `route`: The route to test against. If not specified, it uses the current route from state.
 
 &nbsp;
 ### `RouteSwitch`
@@ -202,6 +206,7 @@ export type RouteSwitchProps = {
 }
 ```
 The component for exclusive route match rendering. See [Route Matching](#guides.md#route-matching).
+* `route`: The route to test against. If not specified, it uses the current route from state.
 
 &nbsp;
 ## Hooks
@@ -255,7 +260,7 @@ interface RouterLocation {
     hash(): string // Hash beginning with "#"
 }
 ```
-Provides the middleware the ability to know and change it's current location in history within the application. There are two inbuilt `RouterLocations`:
+Allows the middleware the ability to know and change it's current location in history within the application. There are two inbuilt `RouterLocations`:
 1. `browserLocation`: The default router location that uses the browser history API.
 2. `testLocation`: A helper router location useful for testing.
 
@@ -286,7 +291,7 @@ type Route = {
     title: string | null
 }
 ```
-A fully realized route
+A fully realized route.
 * `key`: The key defined in the `RoutMap` provided in `createRouterMiddleware()`
 * `item`: A reference to the RouteItem defined in the `RoutMap` provided in `createRouterMiddleware()`
 * `url`: The URL for the current route
